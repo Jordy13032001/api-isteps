@@ -1,0 +1,1 @@
+web: python manage.py collectstatic --no-input && python manage.py migrate --no-input && gunicorn portal_isteps.wsgi --bind 0.0.0.0:$PORT
