@@ -120,16 +120,11 @@ if DATABASE_URL:
     }
 else:
     # Configuración para desarrollo local (usando variables individuales)
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": config("DB_NAME"),
-            "USER": config("DB_USER"),
-            "PASSWORD": config("DB_PASSWORD"),
-            "HOST": config("DB_HOST", default="localhost"),
-            "PORT": config("DB_PORT", default="5432"),
-        }
-    }
+    import dj_database_url
+
+DATABASES = {
+    'default': dj_database_url.config(default=config('DATABASE_URL'))
+}
 
 
 # CUSTOM USER MODEL
