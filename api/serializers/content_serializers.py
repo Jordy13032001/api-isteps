@@ -777,16 +777,24 @@ class AutoridadListSerializer(serializers.ModelSerializer):
             "activo",
         ]
 
-def get_nombre_completo(self, obj):
-    return obj.get_nombre_completo()
+    def get_nombre_completo(self, obj):
+        return obj.get_nombre_completo()
 
-def get_foto_url(self, obj):
-    if obj.fotografia:
-        request = self.context.get("request")
-        if request:
-            return request.build_absolute_uri(obj.fotografia.url)
-        return obj.fotografia.url
-    return None
+    def get_foto_url(self, obj):
+        if obj.fotografia:
+            url = obj.fotografia.url
+            # Si la URL ya es completa, la devolvemos tal cual
+            if url.startswith('http'):
+                return url
+            
+            # Si no tiene /media/, se lo ponemos a la fuerza
+            if not url.startswith('/media/'):
+                path = url if url.startswith('/') else f'/{url}'
+                url = f'/media{path}'
+            
+            # Devolvemos la URL con el dominio de producción
+            return f"https://web-production-4abfb.up.railway.app{url}"
+        return None
 
 
 class AutoridadDetailSerializer(serializers.ModelSerializer):

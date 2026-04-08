@@ -1110,12 +1110,6 @@ class AutoridadViewSet(viewsets.ModelViewSet):
                 }
 
         return Response({"total": queryset.count(), "por_cargo": agrupado})
-    
-    # 🔥 CORREGIDO Y BIEN IMPLEMENTADO
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context.update({"request": self.request})
-        return context
 
 
 class DocumentoTransparenciaViewSet(viewsets.ModelViewSet):
