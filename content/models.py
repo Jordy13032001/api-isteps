@@ -1161,6 +1161,15 @@ class Autoridad(models.Model):
     def __str__(self):
         return f"{self.get_nombre_completo()} - {self.get_cargo_display()}"
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        # Validar el email requerido según el cargo
+        if self.cargo != "consejo_regentes" and not self.email:
+            raise ValidationError({
+                "email": "Este cargo requiere correo institucional."
+            })
+        super().clean()
+
     def get_nombre_completo(self):
         """Retorna el nombre completo"""
         return f"{self.nombres} {self.apellidos}"
