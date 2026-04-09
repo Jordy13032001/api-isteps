@@ -1091,6 +1091,7 @@ class Autoridad(models.Model):
         ("director_carrera", "Director de Carrera"),
         ("coordinador_investigacion", "Coordinador de Investigación"),
         ("representante_docente", "Representante Docentes"),
+        ("representante_estudiante", "Representante Estudiantes"),
     ]
 
     cargo = models.CharField(
