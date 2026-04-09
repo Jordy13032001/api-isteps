@@ -17,9 +17,24 @@ admin.site.register(RecursoAcademico)
 admin.site.register(AccesoRecurso)
 admin.site.register(NoticiasPopup)
 admin.site.register(Interesado)
-admin.site.register(Autoridad)
 admin.site.register(Post)
 admin.site.register(DocumentoTransparencia)
+
+@admin.register(Autoridad)
+class AutoridadAdmin(admin.ModelAdmin):
+
+    list_display = ["nombres", "apellidos", "cargo", "email", "activo"]
+    list_filter = ["cargo", "activo"]
+    search_fields = ["nombres", "apellidos", "email"]
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+
+        # 🔥 HACER EMAIL OPCIONAL EN EL ADMIN
+        if 'email' in form.base_fields:
+            form.base_fields['email'].required = False
+
+        return form
 
 
 @admin.register(CategoriaCurso)
