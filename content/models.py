@@ -1101,9 +1101,7 @@ class Autoridad(models.Model):
         help_text="Cargo que desempeña",
     )
 
-    email = models.EmailField(
-        help_text="Correo electrónico institucional",
-    )
+    email = models.EmailField(blank=True, null=True)
 
     fotografia = models.ImageField(
         upload_to="autoridades/",

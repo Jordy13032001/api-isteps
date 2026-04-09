@@ -872,8 +872,27 @@ class AutoridadCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         """
-        Validar que fecha_fin sea posterior a fecha_inicio si existe
+        Validaciones:
+        - fecha_fin > fecha_inicio
+        - email obligatorio excepto para consejo_regentes
         """
+
+        # 🔹 Obtener valores
+        cargo = attrs.get("cargo")
+        email = attrs.get("email")
+
+        # 🔹 Si es update, usar valores existentes
+        if self.instance:
+            cargo = cargo or self.instance.cargo
+            email = email if "email" in attrs else self.instance.email
+
+        # 🔥 VALIDACIÓN EMAIL
+        if cargo != "consejo_regentes" and not email:
+            raise serializers.ValidationError({
+                "email": "Este cargo requiere correo institucional"
+            })
+
+        # 🔹 VALIDACIÓN FECHAS
         fecha_inicio = attrs.get("fecha_inicio")
         fecha_fin = attrs.get("fecha_fin")
 
@@ -883,11 +902,9 @@ class AutoridadCreateUpdateSerializer(serializers.ModelSerializer):
 
         if fecha_inicio and fecha_fin:
             if fecha_fin < fecha_inicio:
-                raise serializers.ValidationError(
-                    {
-                        "fecha_fin": "La fecha de fin debe ser posterior a la fecha de inicio"
-                    }
-                )
+                raise serializers.ValidationError({
+                    "fecha_fin": "La fecha de fin debe ser posterior a la fecha de inicio"
+                })
 
         return attrs
 
