@@ -202,7 +202,8 @@ class CursoDetailSerializer(serializers.ModelSerializer):
             "categoria_curso_detail",
             "nivel",
             "nivel_display",
-            "duracion_horas",
+            "duracion_valor",
+            "unidad_duracion",
             "fecha_inicio",
             "fecha_fin",
             "fecha_inicio_publicidad",
@@ -276,7 +277,8 @@ class CursoCreateUpdateSerializer(serializers.ModelSerializer):
             "coordinacion",
             "categoria_curso",
             "nivel",
-            "duracion_horas",
+            "duracion_valor",
+            "unidad_duracion",
             "imagen_url",
             "fecha_inicio",
             "fecha_fin",
@@ -302,7 +304,7 @@ class CursoCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("El título no puede estar vacío")
         return value.strip()
 
-    def validate_duracion_horas(self, value):
+    def validate_duracion_valor(self, value):
         if value is not None and value < 0:
             raise serializers.ValidationError("La duración debe ser un número positivo")
         return value
