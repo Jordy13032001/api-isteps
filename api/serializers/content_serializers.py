@@ -141,26 +141,23 @@ class CategoriaCursoSerializer(serializers.ModelSerializer):
 
 
 class CursoListSerializer(serializers.ModelSerializer):
-    """
-    Serializer para listado de cursos (GET lista).
-    Solo muestra: id, titulo, descripcion
-    """
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Curso
-        fields = [
-            "id",
-            "titulo",
-            "descripcion",
-        ]
-        read_only_fields = fields
+        fields = ["id", "titulo", "descripcion", "imagen_url"]
 
+    def get_imagen_url(self, obj):
+        if obj.imagen:
+            return obj.imagen.url
+        return None
 
 class CursoDetailSerializer(serializers.ModelSerializer):
     """
     Serializer para detalle de un curso (GET por ID).
     Información completa incluyendo todos los campos y relaciones.
     """
+    imagen_url = serializers.SerializerMethodField()
 
     plataforma_nombre = serializers.CharField(
         source="plataforma.nombre", read_only=True
@@ -243,6 +240,14 @@ class CursoDetailSerializer(serializers.ModelSerializer):
             return obj.malla_curricular.url
         return None
 
+    def get_imagen_url(self, obj):
+        if obj.imagen:
+            request = self.context.get("request")
+            if request:
+                return request.build_absolute_uri(obj.imagen.url)
+            return obj.imagen.url
+        return None
+        
 
 class CursoCreateUpdateSerializer(serializers.ModelSerializer):
     """
