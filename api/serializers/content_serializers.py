@@ -146,10 +146,13 @@ class CursoListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Curso
         fields = ["id", "titulo", "descripcion", "imagen_url"]
-
+    
     def get_imagen_url(self, obj):
-        if obj.imagen:
-            return obj.imagen.url
+        if hasattr(obj, "imagen") and obj.imagen:
+            try:
+                return obj.imagen.url
+            except:
+                return None
         return None
 
 class CursoDetailSerializer(serializers.ModelSerializer):
@@ -159,9 +162,13 @@ class CursoDetailSerializer(serializers.ModelSerializer):
     """
     imagen_url = serializers.SerializerMethodField()
 
-    plataforma_nombre = serializers.CharField(
-        source="plataforma.nombre", read_only=True
-    )
+    plataforma_nombre = serializers.SerializerMethodField()
+
+    def get_plataforma_nombre(self, obj):
+        if obj.plataforma:
+            return obj.plataforma.nombre
+        return None
+
     coordinacion_display = serializers.CharField(
         source="get_coordinacion_display", read_only=True
     )
@@ -241,11 +248,14 @@ class CursoDetailSerializer(serializers.ModelSerializer):
         return None
 
     def get_imagen_url(self, obj):
-        if obj.imagen:
-            request = self.context.get("request")
-            if request:
-                return request.build_absolute_uri(obj.imagen.url)
-            return obj.imagen.url
+        if hasattr(obj, "imagen") and obj.imagen:
+            try:
+                request = self.context.get("request")
+                if request:
+                    return request.build_absolute_uri(obj.imagen.url)
+                return obj.imagen.url
+            except:
+                return None
         return None
         
 
