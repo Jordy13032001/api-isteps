@@ -2,6 +2,8 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.routers import DefaultRouter
 
+from api.views.content_views import cursos_moodle
+
 from api.views import (
     # Auth views
     LogoutAPIView,
@@ -168,4 +170,5 @@ urlpatterns = [
     ),
     # ROUTER (VIEWSETS)
     path("", include(router.urls)),
+    path("academico/moodle-cursos/", cursos_moodle),
 ]
