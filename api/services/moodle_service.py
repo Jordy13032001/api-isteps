@@ -1,8 +1,8 @@
 import os
 import requests
 
-MOODLE_URL = os.getenv("MOODLE_URL")
-MOODLE_TOKEN = os.getenv("MOODLE_TOKEN")
+MOODLE_URL = os.getenv("MOODLE_API_URL")
+MOODLE_TOKEN = os.getenv("MOODLE_API_TOKEN")
 
 
 def obtener_cursos_publicos():
