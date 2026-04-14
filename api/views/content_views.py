@@ -9,6 +9,8 @@ from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.decorators import api_view
 from api.services.moodle_service import obtener_cursos_publicos
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes
 
 from django.utils import timezone
 
@@ -1290,17 +1292,13 @@ class DocumentoTransparenciaViewSet(viewsets.ModelViewSet):
         return Response({"count": len(resultado), "categorias": resultado})
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def cursos_moodle(request):
-    data = obtener_cursos_publicos()
-
-    # 🚨 Si hay error en el service
-    if isinstance(data, dict) and data.get("error"):
-        return Response(data, status=400)
-
-    return Response(
-        {
-            "count": len(data),
-            "results": data
-        },
-        status=200
-    )
+    try:
+        data = obtener_cursos_publicos()
+        return Response(data, status=200)
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=500
+        )
