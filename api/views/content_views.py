@@ -1308,7 +1308,14 @@ def cursos_moodle(request):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def estudiantes_curso(request, course_id):
+    from django.core.cache import cache
     try:
+        cache_key = f"moodle_curso_estudiantes_v2_{course_id}"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return Response(cached_data, status=200)
+
         url = "https://cursos.isteps.edu.ec/webservice/rest/server.php"
 
         token = os.getenv("MOODLE_API_TOKEN")
@@ -1326,7 +1333,12 @@ def estudiantes_curso(request, course_id):
             "courseid": course_id
         }
 
-        response = requests.get(url, params=params, timeout=10)
+        # Moodle se demora mucho construyendo el JSON de miles de estudiantes. 
+        # Aumentamos el timeout a 45s (solo pasará 1 vez gracias al caché)
+        try:
+            response = requests.get(url, params=params, timeout=45)
+        except requests.exceptions.Timeout:
+            return Response({"error": "Timeout", "detalle": "Moodle tardó demasiado en responder (>45 seg)"}, status=504)
 
         if response.status_code != 200:
             return Response(
@@ -1336,7 +1348,7 @@ def estudiantes_curso(request, course_id):
 
         data = response.json()
 
-        # 🔥 ESTA ES LA CLAVE: Moodle a veces devuelve errores HTTP 200 como diccionarios
+        # 🔥 Moodle a veces devuelve errores HTTP 200 como diccionarios
         if isinstance(data, dict):
             return Response({
                 "error": "Error desde Moodle o curso inaccesible",
@@ -1357,10 +1369,15 @@ def estudiantes_curso(request, course_id):
             for u in data_reducida if isinstance(u, dict)
         ]
 
-        return Response({
+        final_response = {
             "total": total_estudiantes,
             "estudiantes": estudiantes
-        }, status=200)
+        }
+        
+        # Cachear la respuesta optimizada por 12 horas (43200 segundos)
+        cache.set(cache_key, final_response, timeout=43200)
+
+        return Response(final_response, status=200)
 
     except Exception as e:
-        return Response({"error": str(e)}, status=500)
+        return Response({"error": "Error Interno", "detalle": str(e)}, status=500)
