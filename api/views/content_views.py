@@ -1310,7 +1310,7 @@ def cursos_moodle(request):
 def estudiantes_curso(request, course_id):
     from django.core.cache import cache
     try:
-        cache_key = f"moodle_curso_estudiantes_v4_{course_id}"
+        cache_key = f"moodle_curso_estudiantes_v5_{course_id}"
         cached_data = cache.get(cache_key)
 
         if cached_data and isinstance(cached_data, dict) and "estudiantes" in cached_data:
@@ -1360,42 +1360,11 @@ def estudiantes_curso(request, course_id):
         if not isinstance(data, list):
             data = []
 
-        import random
         total_estudiantes = len(data)
         
-        # Clasificar estudiantes en 1 sola pasada (súper veloz, demora <1 milisegundo)
-        con_foto = []
-        sin_foto = []
-        for u in data:
-            if isinstance(u, dict):
-                # Moodle sirve fotos reales subidas por el usuario a través de 'pluginfile.php'
-                # Las siluetas grises por defecto vienen del tema, ej. 'theme/image.php'
-                if "pluginfile.php" in u.get("profileimageurl", ""):
-                    con_foto.append(u)
-                else:
-                    sin_foto.append(u)
-                    
-        data_reducida = []
-        
-        # Prioridad 100%: Intentar llenar los 4 huecos con estudiantes que SÍ subieron foto
-        if len(con_foto) >= 4:
-            data_reducida = random.sample(con_foto, 4)
-        else:
-            # Si hay menos de 4 con foto real, tomamos a todos los que tienen foto y rellenamos el resto con siluetas
-            data_reducida = list(con_foto)
-            faltantes = 4 - len(data_reducida)
-            if len(sin_foto) >= faltantes:
-                data_reducida += random.sample(sin_foto, faltantes)
-            else:
-                data_reducida += sin_foto
-
-        estudiantes = [
-            {
-                "nombre": u.get("fullname", ""),
-                "foto": u.get("profileimageurl", "")
-            }
-            for u in data_reducida if isinstance(u, dict)
-        ]
+        # Como el frontend ahora es minimalista,
+        # NO necesitamos procesar ni enviar la lista de estudiantes para ahorrar ancho de banda al máximo.
+        estudiantes = []
 
         # Guardamos en caché tanto a los estudiantes como el total
         cache_data_to_save = {"estudiantes": estudiantes, "total": total_estudiantes}
