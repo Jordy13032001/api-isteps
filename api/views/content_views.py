@@ -1316,6 +1316,7 @@ def estudiantes_curso(request, course_id):
         if cached_data and isinstance(cached_data, dict) and "estudiantes" in cached_data:
             resp = Response(cached_data["estudiantes"], status=200)
             resp["X-Total-Count"] = str(cached_data.get("total", 0))
+            resp["Access-Control-Expose-Headers"] = "X-Total-Count"
             return resp
 
         url = "https://cursos.isteps.edu.ec/webservice/rest/server.php"
@@ -1374,6 +1375,8 @@ def estudiantes_curso(request, course_id):
         resp = Response(estudiantes, status=200)
         # y enviamos el total como un header HTTP
         resp["X-Total-Count"] = str(total_estudiantes)
+        # 🚨 VITAL: Exponer el header a través de CORS para que el Javascript del front pueda leerlo 🚨
+        resp["Access-Control-Expose-Headers"] = "X-Total-Count"
         
         return resp
 
