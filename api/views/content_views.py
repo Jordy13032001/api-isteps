@@ -1336,22 +1336,25 @@ def estudiantes_curso(request, course_id):
 
         data = response.json()
 
-        # 🔥 ESTA ES LA CLAVE
-        if isinstance(data, dict) and data.get("exception"):
+        # 🔥 ESTA ES LA CLAVE: Moodle a veces devuelve errores HTTP 200 como diccionarios
+        if isinstance(data, dict):
             return Response({
-                "error": "Error Moodle",
+                "error": "Error desde Moodle o curso inaccesible",
                 "detalle": data
             }, status=400)
+            
+        if not isinstance(data, list):
+            data = []
 
         total_estudiantes = len(data)
         data_reducida = data[:4] # 👈 SOLO 4
 
         estudiantes = [
             {
-                "nombre": u.get("fullname"),
-                "foto": u.get("profileimageurl")
+                "nombre": u.get("fullname", ""),
+                "foto": u.get("profileimageurl", "")
             }
-            for u in data_reducida
+            for u in data_reducida if isinstance(u, dict)
         ]
 
         return Response({
