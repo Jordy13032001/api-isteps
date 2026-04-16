@@ -1310,7 +1310,7 @@ def cursos_moodle(request):
 def estudiantes_curso(request, course_id):
     from django.core.cache import cache
     try:
-        cache_key = f"moodle_curso_estudiantes_v3_{course_id}"
+        cache_key = f"moodle_curso_estudiantes_v4_{course_id}"
         cached_data = cache.get(cache_key)
 
         if cached_data and isinstance(cached_data, dict) and "estudiantes" in cached_data:
@@ -1363,11 +1363,31 @@ def estudiantes_curso(request, course_id):
         import random
         total_estudiantes = len(data)
         
-        # Aleatorizar para no mostrar siempre a los mismos primeros 4 estudiantes (admins o alfabético)
-        if total_estudiantes > 4:
-            data_reducida = random.sample(data, 4)
+        # Clasificar estudiantes en 1 sola pasada (súper veloz, demora <1 milisegundo)
+        con_foto = []
+        sin_foto = []
+        for u in data:
+            if isinstance(u, dict):
+                # Moodle sirve fotos reales subidas por el usuario a través de 'pluginfile.php'
+                # Las siluetas grises por defecto vienen del tema, ej. 'theme/image.php'
+                if "pluginfile.php" in u.get("profileimageurl", ""):
+                    con_foto.append(u)
+                else:
+                    sin_foto.append(u)
+                    
+        data_reducida = []
+        
+        # Prioridad 100%: Intentar llenar los 4 huecos con estudiantes que SÍ subieron foto
+        if len(con_foto) >= 4:
+            data_reducida = random.sample(con_foto, 4)
         else:
-            data_reducida = data
+            # Si hay menos de 4 con foto real, tomamos a todos los que tienen foto y rellenamos el resto con siluetas
+            data_reducida = list(con_foto)
+            faltantes = 4 - len(data_reducida)
+            if len(sin_foto) >= faltantes:
+                data_reducida += random.sample(sin_foto, faltantes)
+            else:
+                data_reducida += sin_foto
 
         estudiantes = [
             {
