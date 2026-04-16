@@ -1313,8 +1313,10 @@ def estudiantes_curso(request, course_id):
         cache_key = f"moodle_curso_estudiantes_v2_{course_id}"
         cached_data = cache.get(cache_key)
 
-        if cached_data:
-            return Response(cached_data, status=200)
+        if cached_data and isinstance(cached_data, dict) and "estudiantes" in cached_data:
+            resp = Response(cached_data["estudiantes"], status=200)
+            resp["X-Total-Count"] = str(cached_data.get("total", 0))
+            return resp
 
         url = "https://cursos.isteps.edu.ec/webservice/rest/server.php"
 
@@ -1369,15 +1371,16 @@ def estudiantes_curso(request, course_id):
             for u in data_reducida if isinstance(u, dict)
         ]
 
-        final_response = {
-            "total": total_estudiantes,
-            "estudiantes": estudiantes
-        }
-        
-        # Cachear la respuesta optimizada por 12 horas (43200 segundos)
-        cache.set(cache_key, final_response, timeout=43200)
+        # Guardamos en caché tanto a los estudiantes como el total
+        cache_data_to_save = {"estudiantes": estudiantes, "total": total_estudiantes}
+        cache.set(cache_key, cache_data_to_save, timeout=43200)
 
-        return Response(final_response, status=200)
+        # Retornamos SOLO el array para no romper el frontend de React con .map()
+        resp = Response(estudiantes, status=200)
+        # y enviamos el total como un header HTTP
+        resp["X-Total-Count"] = str(total_estudiantes)
+        
+        return resp
 
     except Exception as e:
         return Response({"error": "Error Interno", "detalle": str(e)}, status=500)
