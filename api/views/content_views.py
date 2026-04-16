@@ -1343,15 +1343,21 @@ def estudiantes_curso(request, course_id):
                 "detalle": data
             }, status=400)
 
+        total_estudiantes = len(data)
+        data_reducida = data[:4] # 👈 SOLO 4
+
         estudiantes = [
             {
                 "nombre": u.get("fullname"),
                 "foto": u.get("profileimageurl")
             }
-            for u in data
+            for u in data_reducida
         ]
 
-        return Response(estudiantes, status=200)
+        return Response({
+            "total": total_estudiantes,
+            "estudiantes": estudiantes
+        }, status=200)
 
     except Exception as e:
         return Response({"error": str(e)}, status=500)
