@@ -1330,18 +1330,25 @@ def estudiantes_curso(request, course_id):
 
         if response.status_code != 200:
             return Response(
-                {"error": "Error al consultar Moodle", "detalle": response.text},
+                {"error": "Error HTTP", "detalle": response.text},
                 status=500
             )
 
         data = response.json()
+
+        # 🔥 ESTA ES LA CLAVE
+        if isinstance(data, dict) and data.get("exception"):
+            return Response({
+                "error": "Error Moodle",
+                "detalle": data
+            }, status=400)
 
         estudiantes = [
             {
                 "nombre": u.get("fullname"),
                 "foto": u.get("profileimageurl")
             }
-            for u in data if isinstance(u, dict)
+            for u in data
         ]
 
         return Response(estudiantes, status=200)
