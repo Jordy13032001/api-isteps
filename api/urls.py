@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.routers import DefaultRouter
-from .views import estudiantes_curso
+from api.views.content_views import estudiantes_curso
 
 from api.views.content_views import cursos_moodle
 
