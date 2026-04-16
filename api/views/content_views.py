@@ -11,6 +11,8 @@ from rest_framework.decorators import api_view
 from api.services.moodle_service import obtener_cursos_publicos
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, permission_classes
+import os
+import requests
 
 from django.utils import timezone
 
@@ -1302,3 +1304,47 @@ def cursos_moodle(request):
             {"error": str(e)},
             status=500
         )
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def estudiantes_curso(request, course_id):
+    try:
+        url = "https://cursos.isteps.edu.ec/webservice/rest/server.php"
+
+        token = os.getenv("MOODLE_API_TOKEN")
+
+        if not token:
+            return Response(
+                {"error": "Falta MOODLE_API_TOKEN en variables de entorno"},
+                status=500
+            )
+
+        params = {
+            "wstoken": token,
+            "wsfunction": "core_enrol_get_enrolled_users",
+            "moodlewsrestformat": "json",
+            "courseid": course_id
+        }
+
+        response = requests.get(url, params=params, timeout=10)
+
+        if response.status_code != 200:
+            return Response(
+                {"error": "Error al consultar Moodle", "detalle": response.text},
+                status=500
+            )
+
+        data = response.json()
+
+        estudiantes = [
+            {
+                "nombre": u.get("fullname"),
+                "foto": u.get("profileimageurl")
+            }
+            for u in data if isinstance(u, dict)
+        ]
+
+        return Response(estudiantes, status=200)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)

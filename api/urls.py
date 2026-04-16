@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.routers import DefaultRouter
+from .views import estudiantes_curso
 
 from api.views.content_views import cursos_moodle
 
@@ -50,6 +51,7 @@ router.register(r"config/emergencia", NoticiasPopupViewSet, basename="noticias-p
 router.register(r"academico/programas", CursoViewSet, basename="cursos")
 router.register(r"academico/categorias", CategoriaCursoViewSet, basename="categorias")
 router.register(r"academico/interesados", InteresadoViewSet, basename="interesados")
+
 router.register(r"cms/etiquetas", EtiquetaViewSet, basename="etiquetas")
 router.register(r"cms/posts", PostViewSet, basename="posts")
 router.register(r"instituto/autoridades", AutoridadViewSet, basename="autoridades")
@@ -171,4 +173,6 @@ urlpatterns = [
     # ROUTER (VIEWSETS)
     path("", include(router.urls)),
     path("academico/moodle-cursos/", cursos_moodle),
+    path('moodle/curso/<int:course_id>/estudiantes/', estudiantes_curso),
+
 ]

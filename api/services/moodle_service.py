@@ -67,3 +67,35 @@ def obtener_cursos_publicos():
             "error": "Error de conexión",
             "detalle": str(e)
         }
+
+def obtener_estudiantes_curso(course_id):
+    if not MOODLE_URL or not MOODLE_TOKEN:
+        return []
+
+    params = {
+        "wstoken": MOODLE_TOKEN,
+        "wsfunction": "core_enrol_get_enrolled_users",
+        "moodlewsrestformat": "json",
+        "courseid": course_id,
+    }
+
+    try:
+        response = requests.get(MOODLE_URL, params=params, timeout=10)
+        data = response.json()
+
+        if isinstance(data, dict) and data.get("exception"):
+            return []
+
+        estudiantes = [
+            {
+                "nombre": u.get("fullname"),
+                "foto": u.get("profileimageurl"),
+            }
+            for u in data
+            if u.get("roles") and any(r["shortname"] == "student" for r in u["roles"])
+        ]
+
+        return estudiantes
+
+    except Exception:
+        return []
