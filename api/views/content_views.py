@@ -1310,7 +1310,7 @@ def cursos_moodle(request):
 def estudiantes_curso(request, course_id):
     from django.core.cache import cache
     try:
-        cache_key = f"moodle_curso_estudiantes_v2_{course_id}"
+        cache_key = f"moodle_curso_estudiantes_v3_{course_id}"
         cached_data = cache.get(cache_key)
 
         if cached_data and isinstance(cached_data, dict) and "estudiantes" in cached_data:
@@ -1360,8 +1360,14 @@ def estudiantes_curso(request, course_id):
         if not isinstance(data, list):
             data = []
 
+        import random
         total_estudiantes = len(data)
-        data_reducida = data[:4] # 👈 SOLO 4
+        
+        # Aleatorizar para no mostrar siempre a los mismos primeros 4 estudiantes (admins o alfabético)
+        if total_estudiantes > 4:
+            data_reducida = random.sample(data, 4)
+        else:
+            data_reducida = data
 
         estudiantes = [
             {
