@@ -141,34 +141,30 @@ class CategoriaCursoSerializer(serializers.ModelSerializer):
 
 
 class CursoListSerializer(serializers.ModelSerializer):
-    imagen_url = serializers.SerializerMethodField()
+    """
+    Serializer para listado de cursos (GET lista).
+    Solo muestra: id, titulo, descripcion
+    """
 
     class Meta:
         model = Curso
-        fields = ["id", "titulo", "descripcion", "imagen_url"]
-    
-    def get_imagen_url(self, obj):
-        if hasattr(obj, "imagen") and obj.imagen:
-            try:
-                return obj.imagen.url
-            except:
-                return None
-        return None
+        fields = [
+            "id",
+            "titulo",
+            "descripcion",
+        ]
+        read_only_fields = fields
+
 
 class CursoDetailSerializer(serializers.ModelSerializer):
     """
     Serializer para detalle de un curso (GET por ID).
     Información completa incluyendo todos los campos y relaciones.
     """
-    imagen_url = serializers.SerializerMethodField()
 
-    plataforma_nombre = serializers.SerializerMethodField()
-
-    def get_plataforma_nombre(self, obj):
-        if obj.plataforma:
-            return obj.plataforma.nombre
-        return None
-
+    plataforma_nombre = serializers.CharField(
+        source="plataforma.nombre", read_only=True
+    )
     coordinacion_display = serializers.CharField(
         source="get_coordinacion_display", read_only=True
     )
@@ -202,8 +198,7 @@ class CursoDetailSerializer(serializers.ModelSerializer):
             "categoria_curso_detail",
             "nivel",
             "nivel_display",
-            "duracion_valor",
-            "unidad_duracion",
+            "duracion_horas",
             "fecha_inicio",
             "fecha_fin",
             "fecha_inicio_publicidad",
@@ -248,17 +243,6 @@ class CursoDetailSerializer(serializers.ModelSerializer):
             return obj.malla_curricular.url
         return None
 
-    def get_imagen_url(self, obj):
-        if hasattr(obj, "imagen") and obj.imagen:
-            try:
-                request = self.context.get("request")
-                if request:
-                    return request.build_absolute_uri(obj.imagen.url)
-                return obj.imagen.url
-            except:
-                return None
-        return None
-        
 
 class CursoCreateUpdateSerializer(serializers.ModelSerializer):
     """
@@ -277,8 +261,7 @@ class CursoCreateUpdateSerializer(serializers.ModelSerializer):
             "coordinacion",
             "categoria_curso",
             "nivel",
-            "duracion_valor",
-            "unidad_duracion",
+            "duracion_horas",
             "imagen_url",
             "fecha_inicio",
             "fecha_fin",
@@ -304,7 +287,7 @@ class CursoCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("El título no puede estar vacío")
         return value.strip()
 
-    def validate_duracion_valor(self, value):
+    def validate_duracion_horas(self, value):
         if value is not None and value < 0:
             raise serializers.ValidationError("La duración debe ser un número positivo")
         return value
@@ -593,12 +576,9 @@ class PostListSerializer(serializers.ModelSerializer):
             "resumen",
             "tipo",
             "tipo_display",
-            "clasificacion",
             "imagen_url",
             "autor",
             "autor_nombre",
-            "autor_texto",
-            "archivo_pdf",
             "estado",
             "estado_display",
             "destacado",
@@ -607,8 +587,6 @@ class PostListSerializer(serializers.ModelSerializer):
         ]
 
     def get_autor_nombre(self, obj):
-        if obj.autor_texto:
-            return obj.autor_texto
         if obj.autor:
             return obj.autor.get_nombre_completo()
         return None
@@ -653,13 +631,10 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "contenido",
             "tipo",
             "tipo_display",
-            "clasificacion",
             "imagen_portada",
             "imagen_url",
             "autor",
             "autor_nombre",
-            "autor_texto",
-            "archivo_pdf",
             "estado",
             "estado_display",
             "destacado",
@@ -671,8 +646,6 @@ class PostDetailSerializer(serializers.ModelSerializer):
         ]
 
     def get_autor_nombre(self, obj):
-        if obj.autor_texto:
-            return obj.autor_texto
         if obj.autor:
             return obj.autor.get_nombre_completo()
         return None
@@ -708,11 +681,8 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
             "resumen",
             "contenido",
             "tipo",
-            "clasificacion",
             "imagen_portada",
             "autor",
-            "autor_texto",
-            "archivo_pdf",
             "estado",
             "destacado",
             "fecha_publicacion",
@@ -812,10 +782,18 @@ class AutoridadListSerializer(serializers.ModelSerializer):
 
     def get_foto_url(self, obj):
         if obj.fotografia:
-            request = self.context.get("request")
-            if request:
-                return request.build_absolute_uri(obj.fotografia.url)
-            return obj.fotografia.url
+            url = obj.fotografia.url
+            # Si la URL ya es completa, la devolvemos tal cual
+            if url.startswith('http'):
+                return url
+            
+            # Si no tiene /media/, se lo ponemos a la fuerza
+            if not url.startswith('/media/'):
+                path = url if url.startswith('/') else f'/{url}'
+                url = f'/media{path}'
+            
+            # Devolvemos la URL con el dominio de producción
+            return f"https://web-production-4abfb.up.railway.app{url}"
         return None
 
 
@@ -855,10 +833,15 @@ class AutoridadDetailSerializer(serializers.ModelSerializer):
 
     def get_foto_url(self, obj):
         if obj.fotografia:
-            request = self.context.get("request")
-            if request:
-                return request.build_absolute_uri(obj.fotografia.url)
-            return obj.fotografia.url
+            url = obj.fotografia.url
+            if url.startswith('http'):
+                return url
+            
+            if not url.startswith('/media/'):
+                path = url if url.startswith('/') else f'/{url}'
+                url = f'/media{path}'
+            
+            return f"https://web-production-4abfb.up.railway.app{url}"
         return None
 
 
@@ -902,27 +885,8 @@ class AutoridadCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         """
-        Validaciones:
-        - fecha_fin > fecha_inicio
-        - email obligatorio excepto para consejo_regentes
+        Validar que fecha_fin sea posterior a fecha_inicio si existe
         """
-
-        # 🔹 Obtener valores
-        cargo = attrs.get("cargo")
-        email = attrs.get("email")
-
-        # 🔹 Si es update, usar valores existentes
-        if self.instance:
-            cargo = cargo or self.instance.cargo
-            email = email if "email" in attrs else self.instance.email
-
-        # 🔥 VALIDACIÓN EMAIL
-        if cargo != "consejo_regentes" and not email:
-            raise serializers.ValidationError({
-                "email": "Este cargo requiere correo institucional"
-            })
-
-        # 🔹 VALIDACIÓN FECHAS
         fecha_inicio = attrs.get("fecha_inicio")
         fecha_fin = attrs.get("fecha_fin")
 
@@ -932,9 +896,11 @@ class AutoridadCreateUpdateSerializer(serializers.ModelSerializer):
 
         if fecha_inicio and fecha_fin:
             if fecha_fin < fecha_inicio:
-                raise serializers.ValidationError({
-                    "fecha_fin": "La fecha de fin debe ser posterior a la fecha de inicio"
-                })
+                raise serializers.ValidationError(
+                    {
+                        "fecha_fin": "La fecha de fin debe ser posterior a la fecha de inicio"
+                    }
+                )
 
         return attrs
 

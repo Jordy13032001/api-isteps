@@ -1,19 +1,10 @@
 # api/views/content_views.py
 
-from multiprocessing import context
-
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from rest_framework.decorators import api_view
-from api.services.moodle_service import obtener_cursos_publicos
-from rest_framework.permissions import AllowAny
-from rest_framework.decorators import api_view, permission_classes
-import os
-import requests
-
 from django.utils import timezone
 
 from content.models import (
@@ -739,7 +730,6 @@ class PostViewSet(viewsets.ModelViewSet):
         tipo = self.request.query_params.get("tipo")
         estado = self.request.query_params.get("estado")
         destacado = self.request.query_params.get("destacado")
-        clasificacion = self.request.query_params.get("clasificacion")
 
         if tipo:
             queryset = queryset.filter(tipo=tipo)
@@ -748,8 +738,6 @@ class PostViewSet(viewsets.ModelViewSet):
         if destacado is not None:
             destacado_bool = destacado.lower() in ["true", "1", "si", "yes"]
             queryset = queryset.filter(destacado=destacado_bool)
-        if clasificacion:
-            queryset = queryset.filter(clasificacion=clasificacion)
 
         return queryset
 
@@ -1295,93 +1283,3 @@ class DocumentoTransparenciaViewSet(viewsets.ModelViewSet):
             )
 
         return Response({"count": len(resultado), "categorias": resultado})
-
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def cursos_moodle(request):
-    try:
-        data = obtener_cursos_publicos()
-        return Response(data, status=200)
-    except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=500
-        )
-
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def estudiantes_curso(request, course_id):
-    from django.core.cache import cache
-    try:
-        cache_key = f"moodle_curso_estudiantes_v5_{course_id}"
-        cached_data = cache.get(cache_key)
-
-        if cached_data and isinstance(cached_data, dict) and "estudiantes" in cached_data:
-            resp = Response(cached_data["estudiantes"], status=200)
-            resp["X-Total-Count"] = str(cached_data.get("total", 0))
-            resp["Access-Control-Expose-Headers"] = "X-Total-Count"
-            return resp
-
-        url = "https://cursos.isteps.edu.ec/webservice/rest/server.php"
-
-        token = os.getenv("MOODLE_API_TOKEN")
-
-        if not token:
-            return Response(
-                {"error": "Falta MOODLE_API_TOKEN en variables de entorno"},
-                status=500
-            )
-
-        params = {
-            "wstoken": token,
-            "wsfunction": "core_enrol_get_enrolled_users",
-            "moodlewsrestformat": "json",
-            "courseid": course_id
-        }
-
-        # Moodle se demora mucho construyendo el JSON de miles de estudiantes. 
-        # Aumentamos el timeout a 45s (solo pasará 1 vez gracias al caché)
-        try:
-            response = requests.get(url, params=params, timeout=45)
-        except requests.exceptions.Timeout:
-            return Response({"error": "Timeout", "detalle": "Moodle tardó demasiado en responder (>45 seg)"}, status=504)
-
-        if response.status_code != 200:
-            return Response(
-                {"error": "Error HTTP", "detalle": response.text},
-                status=500
-            )
-
-        data = response.json()
-
-        # 🔥 Moodle a veces devuelve errores HTTP 200 como diccionarios
-        if isinstance(data, dict):
-            return Response({
-                "error": "Error desde Moodle o curso inaccesible",
-                "detalle": data
-            }, status=400)
-            
-        if not isinstance(data, list):
-            data = []
-
-        total_estudiantes = len(data)
-        
-        # Como el frontend ahora es minimalista,
-        # NO necesitamos procesar ni enviar la lista de estudiantes para ahorrar ancho de banda al máximo.
-        estudiantes = []
-
-        # Guardamos en caché tanto a los estudiantes como el total
-        cache_data_to_save = {"estudiantes": estudiantes, "total": total_estudiantes}
-        cache.set(cache_key, cache_data_to_save, timeout=43200)
-
-        # Retornamos SOLO el array para no romper el frontend de React con .map()
-        resp = Response(estudiantes, status=200)
-        # y enviamos el total como un header HTTP
-        resp["X-Total-Count"] = str(total_estudiantes)
-        # 🚨 VITAL: Exponer el header a través de CORS para que el Javascript del front pueda leerlo 🚨
-        resp["Access-Control-Expose-Headers"] = "X-Total-Count"
-        
-        return resp
-
-    except Exception as e:
-        return Response({"error": "Error Interno", "detalle": str(e)}, status=500)

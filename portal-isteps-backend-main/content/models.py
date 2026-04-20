@@ -934,34 +934,6 @@ class Post(models.Model):
         help_text="Tipo de contenido",
     )
 
-    clasificacion = models.CharField(
-        max_length=50,
-        blank=True,
-        null=True,
-        choices=[
-            ("institucional", "Institucional"),
-            ("academico", "Académico"),
-            ("eventos", "Eventos"),
-            ("deportes", "Deportes"),
-            ("comunicados", "Comunicados"),
-        ],
-        help_text="Clasificación de la noticia",
-    )
-
-    autor_texto = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Nombre libre del autor (usado cuando el autor no es un usuario del sistema)",
-    )
-
-    archivo_pdf = models.FileField(
-        upload_to="posts_pdfs/%Y/%m/",
-        blank=True,
-        null=True,
-        help_text="Archivo PDF asociado al post (opcional, útil para Revistas o Blogs)",
-    )
-
     imagen_portada = models.ImageField(
         upload_to="posts/%Y/%m/",
         blank=True,
@@ -1119,8 +1091,6 @@ class Autoridad(models.Model):
         ("director_carrera", "Director de Carrera"),
         ("coordinador_investigacion", "Coordinador de Investigación"),
         ("representante_docente", "Representante Docentes"),
-        ("representante_estudiante", "Representante Estudiantes"),
-        ("consejo_regentes", "Consejo de Regentes"),
     ]
 
     cargo = models.CharField(
@@ -1129,7 +1099,9 @@ class Autoridad(models.Model):
         help_text="Cargo que desempeña",
     )
 
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField(
+        help_text="Correo electrónico institucional",
+    )
 
     fotografia = models.ImageField(
         upload_to="autoridades/",
@@ -1188,15 +1160,6 @@ class Autoridad(models.Model):
 
     def __str__(self):
         return f"{self.get_nombre_completo()} - {self.get_cargo_display()}"
-
-    def clean(self):
-        from django.core.exceptions import ValidationError
-        # Validar el email requerido según el cargo
-        if self.cargo != "consejo_regentes" and not self.email:
-            raise ValidationError({
-                "email": "Este cargo requiere correo institucional."
-            })
-        super().clean()
 
     def get_nombre_completo(self):
         """Retorna el nombre completo"""
