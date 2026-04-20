@@ -268,7 +268,7 @@ class Curso(models.Model):
         """Retorna True si el curso está en periodo de publicidad"""
         from django.utils import timezone
 
-        hoy = timezone.now().date()
+        hoy = timezone.localdate()
 
         if not self.fecha_inicio_publicidad and not self.fecha_fin_publicidad:
             return True  # Sin restricción de fechas
@@ -721,7 +721,7 @@ class NoticiasPopup(models.Model):
         """Retorna True si la noticia está dentro del rango de fechas"""
         from django.utils import timezone
 
-        hoy = timezone.now().date()
+        hoy = timezone.localdate()
         return self.fecha_inicio <= hoy <= self.fecha_fin
 
     def debe_mostrarse(self):

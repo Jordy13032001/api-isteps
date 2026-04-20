@@ -68,6 +68,25 @@ class NoticiasPopupViewSet(viewsets.ModelViewSet):
     queryset = NoticiasPopup.objects.all().order_by("-creado_en")
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    def get_queryset(self):
+        """
+        Retorna el queryset filtrado.
+        - Staff: Todas las noticias
+        - Público: Solo noticias activas y dentro del rango de fechas
+        """
+        queryset = NoticiasPopup.objects.all().order_by("-creado_en")
+        
+        # Si no es staff, filtrar solo las que deben mostrarse
+        if not self.request.user or not self.request.user.is_staff:
+            hoy = timezone.localdate()
+            queryset = queryset.filter(
+                estado=True,
+                fecha_inicio__lte=hoy,
+                fecha_fin__gte=hoy
+            )
+        
+        return queryset
+
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
             return NoticiasPopupCreateUpdateSerializer
@@ -146,7 +165,7 @@ class NoticiasPopupViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"], permission_classes=[AllowAny])
     def activas(self, request):
-        hoy = timezone.now().date()
+        hoy = timezone.localdate()
         noticias = NoticiasPopup.objects.filter(
             estado=True, fecha_inicio__lte=hoy, fecha_fin__gte=hoy
         ).order_by("-creado_en")
