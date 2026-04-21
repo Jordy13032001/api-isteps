@@ -706,7 +706,7 @@ class NoticiasPopup(models.Model):
         db_table = "noticias_popup"
         verbose_name = "Noticia Popup"
         verbose_name_plural = "Noticias Popup"
-        ordering = ["-creado_en"]  # ✅ Corregido
+        ordering = ["-creado_en"]  
         indexes = [
             models.Index(fields=["estado"]),
             models.Index(fields=["fecha_inicio", "fecha_fin"]),
