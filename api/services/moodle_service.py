@@ -44,6 +44,9 @@ def obtener_cursos_publicos():
                 "detalle": data
             }
 
+        from content.models import Curso
+        destacados_ids = set(Curso.objects.filter(destacado=True).values_list('codigo_externo', flat=True))
+
         cursos = []
 
         for curso in data:
@@ -53,11 +56,13 @@ def obtener_cursos_publicos():
             if curso.get("id") == 1:
                 continue
 
+            moodle_id = str(curso.get("id"))
             cursos.append({
                 "id": curso.get("id"),
                 "titulo": curso.get("fullname"),
                 "descripcion": curso.get("summary"),
                 "fecha": curso.get("startdate"),
+                "destacado": moodle_id in destacados_ids
             })
 
         return cursos
