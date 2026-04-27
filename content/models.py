@@ -230,6 +230,18 @@ class Curso(models.Model):
         help_text="Estado actual del curso",
     )
 
+    TIPO_CHOICES = [
+        ("carrera", "Carrera (Tercer Nivel)"),
+        ("moodle", "Curso Moodle Destacado"),
+    ]
+
+    tipo = models.CharField(
+        max_length=20,
+        choices=TIPO_CHOICES,
+        default="carrera",
+        help_text="Define si es una Carrera de la institución o un curso destacado de Moodle",
+    )
+
     destacado = models.BooleanField(
         default=False,
         help_text="Indica si el curso debe aparecer en la sección de destacados",

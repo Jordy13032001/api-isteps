@@ -45,7 +45,7 @@ def obtener_cursos_publicos():
             }
 
         from content.models import Curso
-        destacados_ids = set(Curso.objects.filter(destacado=True).values_list('codigo_externo', flat=True))
+        destacados_ids = set(Curso.objects.filter(destacado=True, tipo='moodle').values_list('codigo_externo', flat=True))
 
         cursos = []
 
