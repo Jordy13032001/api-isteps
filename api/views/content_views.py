@@ -265,6 +265,7 @@ class CursoViewSet(viewsets.ModelViewSet):
         nivel = self.request.query_params.get("nivel")
         estado = self.request.query_params.get("estado")
         plataforma = self.request.query_params.get("plataforma")
+        destacado = self.request.query_params.get("destacado")
 
         if coordinacion:
             queryset = queryset.filter(coordinacion=coordinacion)
@@ -276,6 +277,9 @@ class CursoViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(estado=estado)
         if plataforma:
             queryset = queryset.filter(plataforma_id=plataforma)
+        if destacado is not None:
+            destacado_bool = destacado.lower() in ["true", "1", "si", "yes"]
+            queryset = queryset.filter(destacado=destacado_bool)
 
         return queryset
 

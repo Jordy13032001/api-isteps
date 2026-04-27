@@ -35,8 +35,8 @@ class CategoriaCursoAdmin(admin.ModelAdmin):
 # ============================================
 @admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
-    list_display = ["titulo", "coordinacion", "categoria_curso", "plataforma", "costo_total", "cuotas", "estado"]
-    list_filter = ["coordinacion", "categoria_curso", "plataforma", "estado", "nivel", "modalidad"]
+    list_display = ["titulo", "coordinacion", "categoria_curso", "plataforma", "costo_total", "cuotas", "destacado", "estado"]
+    list_filter = ["destacado", "coordinacion", "categoria_curso", "plataforma", "estado", "nivel", "modalidad"]
     search_fields = ["titulo", "codigo_externo"]
     ordering = ["-creado_en"]
     fieldsets = ( 
@@ -85,6 +85,7 @@ class CursoAdmin(admin.ModelAdmin):
                     "fecha_fin",
                     "fecha_inicio_publicidad",
                     "fecha_fin_publicidad",
+                    "destacado",
                     "estado",
                 )
             },

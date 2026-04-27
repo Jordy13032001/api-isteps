@@ -230,6 +230,11 @@ class Curso(models.Model):
         help_text="Estado actual del curso",
     )
 
+    destacado = models.BooleanField(
+        default=False,
+        help_text="Indica si el curso debe aparecer en la sección de destacados",
+    )
+
     creado_en = models.DateTimeField(
         auto_now_add=True,
         help_text="Fecha de creación del registro",
