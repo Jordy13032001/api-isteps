@@ -15,6 +15,7 @@ from .models import (
     Post,
     DocumentoTransparencia,
     ImagenCarrusel,
+    BotonSoporte,
 )
 
 admin.site.register(RecursoAcademico)
@@ -46,7 +47,7 @@ class CarreraForm(forms.ModelForm):
         instance = super().save(commit=False)
         instance.tipo = "carrera"
         
-        # Autogenerar un cÃ³digo externo dummy para cumplir con el modelo
+        # Autogenerar un cÃÂ³digo externo dummy para cumplir con el modelo
         if not instance.codigo_externo:
             import uuid
             instance.codigo_externo = f"carrera-{uuid.uuid4().hex[:8]}"
@@ -71,7 +72,7 @@ class CarreraAdmin(admin.ModelAdmin):
     
     fieldsets = ( 
         (
-            "InformaciÃ³n BÃ¡sica",
+            "InformaciÃÂ³n BÃÂ¡sica",
             {
                 "fields": (
                     "titulo",
@@ -80,9 +81,9 @@ class CarreraAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        ("ClasificaciÃ³n", {"fields": ("coordinacion", "categoria_curso", "nivel", "titulo_obtenido")}),
+        ("ClasificaciÃÂ³n", {"fields": ("coordinacion", "categoria_curso", "nivel", "titulo_obtenido")}),
         (
-            "Detalles AcadÃ©micos y DuraciÃ³n",
+            "Detalles AcadÃÂ©micos y DuraciÃÂ³n",
             {
                 "fields": (
                     "duracion_valor",
@@ -119,7 +120,7 @@ class CarreraAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Contenido y DocumentaciÃ³n",
+            "Contenido y DocumentaciÃÂ³n",
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -140,7 +141,7 @@ class CarreraAdmin(admin.ModelAdmin):
         return super().get_queryset(request).filter(tipo="carrera")
 
     def get_urls(self):
-        """Agrega URL personalizada para obtener categorÃ­as por AJAX"""
+        """Agrega URL personalizada para obtener categorÃÂ­as por AJAX"""
         urls = super().get_urls()
         custom_urls = [
             path(
@@ -152,7 +153,7 @@ class CarreraAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def get_categorias_ajax(self, request, coordinacion_id):
-        """Endpoint AJAX que retorna categorÃ­as filtradas por coordinaciÃ³n"""
+        """Endpoint AJAX que retorna categorÃÂ­as filtradas por coordinaciÃÂ³n"""
         categorias = CategoriaCurso.objects.filter(
             coordinacion=coordinacion_id, activo=True
         ).values("id", "nombre")
@@ -171,14 +172,14 @@ class CursoMoodleForm(forms.ModelForm):
             "codigo_externo": "ID Curso Moodle",
         }
         help_texts = {
-            "codigo_externo": "ID numÃ©rico del curso en la plataforma Moodle",
+            "codigo_externo": "ID numÃÂ©rico del curso en la plataforma Moodle",
         }
 
     def save(self, commit=True):
         instance = super().save(commit=False)
         instance.tipo = "moodle"
         
-        # Generar tÃ­tulo por defecto si no existe
+        # Generar tÃÂ­tulo por defecto si no existe
         if not instance.titulo:
             instance.titulo = f"Curso Moodle Destacado #{instance.codigo_externo}"
             
@@ -210,7 +211,7 @@ class CursoMoodleAdmin(admin.ModelAdmin):
                 "fields": (
                     "codigo_externo",
                 ),
-                "description": "Ingrese Ãºnicamente el ID del curso para vincularlo con Moodle.",
+                "description": "Ingrese ÃÂºnicamente el ID del curso para vincularlo con Moodle.",
             },
         ),
         (
@@ -236,10 +237,30 @@ class ImagenCarruselAdmin(admin.ModelAdmin):
     
     def titulo_o_id(self, obj):
         return obj.titulo if obj.titulo else f"Imagen #{str(obj.id)[:8]}"
-    titulo_o_id.short_description = "Título"
+    titulo_o_id.short_description = "TÃ­tulo"
     
     def url_destino_preview(self, obj):
         if obj.url_destino:
             return f"{obj.url_destino[:30]}..." if len(obj.url_destino) > 30 else obj.url_destino
         return "-"
-    url_destino_preview.short_description = "Enlace de Redirección"
+    url_destino_preview.short_description = "Enlace de RedirecciÃ³n"
+
+@admin.register(BotonSoporte)
+class BotonSoporteAdmin(admin.ModelAdmin):
+    list_display = ["nombre", "enlace_url", "activo"]
+    
+    # Prevenir que se agreguen más botones
+    def has_add_permission(self, request):
+        return False
+        
+    # Prevenir que se eliminen los botones existentes
+    def has_delete_permission(self, request, obj=None):
+        return False
+        
+    exclude = ["plataforma"]
+
+    def get_readonly_fields(self, request, obj=None):
+        # Que el nombre y el icono no se puedan cambiar, solo la URL y si está activo
+        if obj:
+            return ["nombre", "icono", "orden"]
+        return []

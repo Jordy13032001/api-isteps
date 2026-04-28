@@ -27,6 +27,7 @@ from api.views import (
     AutoridadViewSet,
     DocumentoTransparenciaViewSet,
     ImagenCarruselViewSet,
+    BotonSoporteViewSet,
     # System views
     TemaColoresAPIView,
     MensajeDashboardViewSet,
@@ -62,6 +63,7 @@ router.register(
 router.register(
     r"cms/carruseles", ImagenCarruselViewSet, basename="carruseles"
 )
+router.register(r"cms/botones-soporte", BotonSoporteViewSet, basename="botones-soporte")
 router.register(
     r"dashboard/mensajes", MensajeDashboardViewSet, basename="mensajes-dashboard"
 )
@@ -71,7 +73,7 @@ router.register(r"sistema/archivos", ArchivoSistemaViewSet, basename="archivos-s
 urlpatterns = [
     # Health check
     path("health/", health_check, name="health-check"),
-    # AUTENTICACIÓN (solo con Microsoft 365)
+    # AUTENTICACIÃN (solo con Microsoft 365)
     path(
         "auth/social-token/",
         ObtenerTokenDesdeSesionAPIView.as_view(),
@@ -112,7 +114,7 @@ urlpatterns = [
         MisExportacionesAPIView.as_view(),
         name="usuario-exportaciones",
     ),
-    # CONFIGURACIÓN GLOBAL
+    # CONFIGURACIÃN GLOBAL
     # Tema/Colores - GET, PUT, PATCH
     path(
         "config/tema/",
@@ -130,7 +132,7 @@ urlpatterns = [
         DashboardMetricasAPIView.as_view(),
         name="analytics-dashboard",
     ),
-    # SEGURIDAD - Logs de Auditoría
+    # SEGURIDAD - Logs de AuditorÃ­a
     path(
         "seguridad/logs/",
         LogsAuditoriaAPIView.as_view(),
@@ -141,7 +143,7 @@ urlpatterns = [
         LogAuditoriaDetalleAPIView.as_view(),
         name="auditoria-log-detalle",
     ),
-    # REPORTES - Generación y Listado
+    # REPORTES - GeneraciÃ³n y Listado
     path(
         "reports/generador/",
         GenerarReporteAPIView.as_view(),
@@ -168,7 +170,7 @@ urlpatterns = [
         ExportacionesReporteAPIView.as_view(),
         name="reportes-exportaciones",
     ),
-    # ACADÉMICO - Ruta especial para POST interesado (singular)
+    # ACADÃMICO - Ruta especial para POST interesado (singular)
     path(
         "academico/interesado/",
         InteresadoViewSet.as_view({"post": "create"}),
@@ -180,3 +182,4 @@ urlpatterns = [
     path('moodle/curso/<int:course_id>/estudiantes/', estudiantes_curso),
 
 ]
+

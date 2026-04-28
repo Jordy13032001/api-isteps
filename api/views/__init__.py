@@ -23,6 +23,7 @@ from .content_views import (
     AutoridadViewSet,
     DocumentoTransparenciaViewSet,
     ImagenCarruselViewSet,
+    BotonSoporteViewSet,
 )
 
 from .system_views import (
@@ -65,6 +66,8 @@ __all__ = [
     "PostViewSet",
     "AutoridadViewSet",
     "DocumentoTransparenciaViewSet",
+    "ImagenCarruselViewSet",
+    "BotonSoporteViewSet",
     # System views
     "TemaColoresAPIView",
     "MensajeDashboardViewSet",
