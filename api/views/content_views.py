@@ -248,7 +248,7 @@ class CursoViewSet(viewsets.ModelViewSet):
         return CursoListSerializer
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve", "por_coordinacion"]:
+        if self.action in ["list", "retrieve", "por_coordinacion", "carreras", "moodle_destacados"]:
             return [AllowAny()]
         return [IsAdminUser()]
 

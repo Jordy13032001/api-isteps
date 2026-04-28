@@ -36,20 +36,43 @@ class CategoriaCursoAdmin(admin.ModelAdmin):
 # ============================================
 # ADMIN PARA CARRERA (Proxy de Curso)
 # ============================================
+class CarreraForm(forms.ModelForm):
+    class Meta:
+        model = Carrera
+        exclude = ["tipo", "codigo_externo", "plataforma"]
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.tipo = "carrera"
+        
+        # Autogenerar un código externo dummy para cumplir con el modelo
+        if not instance.codigo_externo:
+            import uuid
+            instance.codigo_externo = f"carrera-{uuid.uuid4().hex[:8]}"
+            
+        # Asignar la primera plataforma disponible (normalmente la del instituto)
+        if not getattr(instance, 'plataforma_id', None):
+            from integration.models import Plataforma
+            plat = Plataforma.objects.first()
+            instance.plataforma = plat
+            
+        if commit:
+            instance.save()
+        return instance
+
 @admin.register(Carrera)
 class CarreraAdmin(admin.ModelAdmin):
-    list_display = ["titulo", "coordinacion", "categoria_curso", "plataforma", "costo_total", "cuotas", "destacado", "estado"]
-    list_filter = ["destacado", "coordinacion", "categoria_curso", "plataforma", "estado", "nivel", "modalidad"]
-    search_fields = ["titulo", "codigo_externo"]
+    form = CarreraForm
+    list_display = ["titulo", "coordinacion", "categoria_curso", "costo_total", "cuotas", "destacado", "estado"]
+    list_filter = ["destacado", "coordinacion", "categoria_curso", "estado", "nivel", "modalidad"]
+    search_fields = ["titulo"]
     ordering = ["-creado_en"]
-    exclude = ["tipo"] # Se auto-asigna en save_model
+    
     fieldsets = ( 
         (
             "Información Básica",
             {
                 "fields": (
-                    "plataforma",
-                    "codigo_externo",
                     "titulo",
                     "descripcion",
                     "imagen_url",
@@ -114,11 +137,6 @@ class CarreraAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Filtra para mostrar solo las carreras"""
         return super().get_queryset(request).filter(tipo="carrera")
-
-    def save_model(self, request, obj, form, change):
-        """Fuerza que el tipo siempre sea carrera"""
-        obj.tipo = "carrera"
-        super().save_model(request, obj, form, change)
 
     def get_urls(self):
         """Agrega URL personalizada para obtener categorías por AJAX"""
