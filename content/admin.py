@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django import forms
 from django.urls import path
 from django.http import JsonResponse
 from .models import (
@@ -143,26 +144,54 @@ class CarreraAdmin(admin.ModelAdmin):
 # ============================================
 # ADMIN PARA CURSO MOODLE (Proxy de Curso)
 # ============================================
+class CursoMoodleForm(forms.ModelForm):
+    class Meta:
+        model = CursoMoodle
+        fields = ["codigo_externo", "destacado", "estado"]
+        labels = {
+            "codigo_externo": "ID Curso Moodle",
+        }
+        help_texts = {
+            "codigo_externo": "ID numérico del curso en la plataforma Moodle",
+        }
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.tipo = "moodle"
+        
+        # Generar título por defecto si no existe
+        if not instance.titulo:
+            instance.titulo = f"Curso Moodle Destacado #{instance.codigo_externo}"
+            
+        # Asignar plataforma por defecto si no existe
+        if not getattr(instance, 'plataforma_id', None):
+            from integration.models import Plataforma
+            plat = Plataforma.objects.filter(nombre__icontains='moodle').first()
+            if not plat:
+                plat = Plataforma.objects.first()
+            instance.plataforma = plat
+            
+        if commit:
+            instance.save()
+        return instance
+
+
 @admin.register(CursoMoodle)
 class CursoMoodleAdmin(admin.ModelAdmin):
+    form = CursoMoodleForm
     list_display = ["titulo", "codigo_externo", "plataforma", "destacado", "estado"]
-    list_filter = ["destacado", "estado", "plataforma"]
-    search_fields = ["titulo", "codigo_externo"]
+    list_filter = ["destacado", "estado"]
+    search_fields = ["codigo_externo", "titulo"]
     ordering = ["-creado_en"]
-    exclude = ["tipo"]
 
     fieldsets = (
         (
-            "Información del Curso en Moodle",
+            "Vincular con Moodle",
             {
                 "fields": (
-                    "plataforma",
                     "codigo_externo",
-                    "titulo",
-                    "descripcion",
-                    "imagen_url",
                 ),
-                "description": "Ingrese los datos básicos o el ID (código externo) para vincular con Moodle.",
+                "description": "Ingrese únicamente el ID del curso para vincularlo con Moodle.",
             },
         ),
         (
@@ -179,8 +208,3 @@ class CursoMoodleAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Filtra para mostrar solo los cursos de moodle"""
         return super().get_queryset(request).filter(tipo="moodle")
-
-    def save_model(self, request, obj, form, change):
-        """Fuerza que el tipo siempre sea moodle"""
-        obj.tipo = "moodle"
-        super().save_model(request, obj, form, change) 
