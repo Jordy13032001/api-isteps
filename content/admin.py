@@ -14,6 +14,7 @@ from .models import (
     Autoridad,
     Post,
     DocumentoTransparencia,
+    ImagenCarrusel,
 )
 
 admin.site.register(RecursoAcademico)

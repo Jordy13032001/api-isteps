@@ -1419,3 +1419,52 @@ class DocumentoTransparencia(models.Model):
             "subido_por": subidor,
             "subido_en": self.subido_en.strftime("%Y-%m-%d %H:%M:%S"),
         }
+
+
+class ImagenCarrusel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
+    SECCION_CHOICES = [
+        ('mesa_tecnica', 'Mesa Técnica'),
+        ('ruta_aprendizaje', 'Ruta de Aprendizaje'),
+        ('historia', 'Nuestra Historia'),
+        ('inicio', 'Inicio Principal'),
+    ]
+    
+    seccion = models.CharField(
+        max_length=50, 
+        choices=SECCION_CHOICES,
+        help_text="Sección donde aparecerá esta imagen en el frontend"
+    )
+    
+    titulo = models.CharField(max_length=150, blank=True, null=True, help_text="Título o nombre descriptivo de la imagen (Opcional)")
+    
+    imagen_url = models.URLField(max_length=500, blank=True, null=True, help_text="URL de la imagen (Ej. Imgur, Cloudinary)")
+    imagen_archivo = models.ImageField(upload_to="carruseles/", blank=True, null=True, help_text="O sube el archivo directamente")
+    
+    url_destino = models.URLField(max_length=500, blank=True, null=True, help_text="URL a la que redirigirá al hacer clic (Especial para Mesa Técnica)")
+    
+    orden = models.IntegerField(default=0, help_text="Orden en el que aparecerá en el carrusel (0 es el primero)")
+    activo = models.BooleanField(default=True, help_text="Indica si la imagen está visible")
+    
+    creado_en = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = "imagenes_carrusel"
+        verbose_name = "Imagen de Carrusel"
+        verbose_name_plural = "Imágenes de Carrusel"
+        ordering = ["seccion", "orden", "-creado_en"]
+        indexes = [
+            models.Index(fields=["seccion", "activo"]),
+        ]
+
+    def __str__(self):
+        return f"[{self.get_seccion_display()}] {self.titulo or 'Imagen'}"
+    
+    def get_imagen(self):
+        """Retorna la URL de la imagen, priorizando la subida directamente."""
+        if self.imagen_url:
+            return self.imagen_url
+        if self.imagen_archivo:
+            return self.imagen_archivo.url
+        return ""

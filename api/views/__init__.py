@@ -22,6 +22,7 @@ from .content_views import (
     PostViewSet,
     AutoridadViewSet,
     DocumentoTransparenciaViewSet,
+    ImagenCarruselViewSet,
 )
 
 from .system_views import (

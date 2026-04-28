@@ -26,6 +26,7 @@ from api.views import (
     PostViewSet,
     AutoridadViewSet,
     DocumentoTransparenciaViewSet,
+    ImagenCarruselViewSet,
     # System views
     TemaColoresAPIView,
     MensajeDashboardViewSet,
@@ -57,6 +58,9 @@ router.register(r"cms/posts", PostViewSet, basename="posts")
 router.register(r"instituto/autoridades", AutoridadViewSet, basename="autoridades")
 router.register(
     r"transparencia/documentos", DocumentoTransparenciaViewSet, basename="documentos"
+)
+router.register(
+    r"cms/carruseles", ImagenCarruselViewSet, basename="carruseles"
 )
 router.register(
     r"dashboard/mensajes", MensajeDashboardViewSet, basename="mensajes-dashboard"

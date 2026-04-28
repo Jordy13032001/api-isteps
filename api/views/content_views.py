@@ -25,6 +25,7 @@ from content.models import (
     Etiqueta,
     Autoridad,
     DocumentoTransparencia,
+    ImagenCarrusel,
 )
 from api.serializers.content_serializers import (
     # Noticias Popup
@@ -54,6 +55,8 @@ from api.serializers.content_serializers import (
     DocumentoTransparenciaListSerializer,
     DocumentoTransparenciaDetailSerializer,
     DocumentoTransparenciaCreateSerializer,
+    # Carrusel
+    ImagenCarruselSerializer,
 )
 
 
@@ -72,7 +75,7 @@ class NoticiasPopupViewSet(viewsets.ModelViewSet):
         """
         Retorna el queryset filtrado.
         - Staff: Todas las noticias
-        - Público: Solo noticias activas y dentro del rango de fechas
+        - PÃºblico: Solo noticias activas y dentro del rango de fechas
         """
         queryset = NoticiasPopup.objects.all().order_by("-creado_en")
         
@@ -180,7 +183,7 @@ class NoticiasPopupViewSet(viewsets.ModelViewSet):
         noticia = self.get_object()
         if noticia.estado:
             return Response(
-                {"message": "La noticia ya está activa"}, status=status.HTTP_200_OK
+                {"message": "La noticia ya estÃ¡ activa"}, status=status.HTTP_200_OK
             )
         noticia.estado = True
         noticia.save()
@@ -198,7 +201,7 @@ class NoticiasPopupViewSet(viewsets.ModelViewSet):
         noticia = self.get_object()
         if not noticia.estado:
             return Response(
-                {"message": "La noticia ya está desactivada"}, status=status.HTTP_200_OK
+                {"message": "La noticia ya estÃ¡ desactivada"}, status=status.HTTP_200_OK
             )
         noticia.estado = False
         noticia.save()
@@ -212,21 +215,21 @@ class NoticiasPopupViewSet(viewsets.ModelViewSet):
         )
 
 
-# VIEWSET PARA CURSOS (PROGRAMAS ACADÉMICOS)
+# VIEWSET PARA CURSOS (PROGRAMAS ACADÃMICOS)
 
 
 class CursoViewSet(viewsets.ModelViewSet):
     """
-    ViewSet para gestionar Cursos/Programas Académicos.
+    ViewSet para gestionar Cursos/Programas AcadÃ©micos.
 
     Endpoints:
-    - GET    /api/academico/programas/              → Lista cursos activos
-    - GET    /api/academico/programas/{id}/         → Detalle de un curso
-    - POST   /api/academico/programas/              → Crear curso (Admin)
-    - PUT    /api/academico/programas/{id}/         → Actualizar curso (Admin)
-    - PATCH  /api/academico/programas/{id}/         → Actualizar parcial (Admin)
-    - DELETE /api/academico/programas/{id}/         → Eliminar curso (Admin)
-    - GET    /api/academico/programas/por_coordinacion/  → Agrupados por coordinación
+    - GET    /api/academico/programas/              â Lista cursos activos
+    - GET    /api/academico/programas/{id}/         â Detalle de un curso
+    - POST   /api/academico/programas/              â Crear curso (Admin)
+    - PUT    /api/academico/programas/{id}/         â Actualizar curso (Admin)
+    - PATCH  /api/academico/programas/{id}/         â Actualizar parcial (Admin)
+    - DELETE /api/academico/programas/{id}/         â Eliminar curso (Admin)
+    - GET    /api/academico/programas/por_coordinacion/  â Agrupados por coordinaciÃ³n
     """
 
     queryset = Curso.objects.select_related(
@@ -354,7 +357,7 @@ class CursoViewSet(viewsets.ModelViewSet):
         """
         GET /api/academico/programas/por_coordinacion/
 
-        Retorna cursos agrupados por coordinación.
+        Retorna cursos agrupados por coordinaciÃ³n.
         """
         vicerrectorado = Curso.objects.filter(
             coordinacion=1, estado="activo"
@@ -375,7 +378,7 @@ class CursoViewSet(viewsets.ModelViewSet):
                 },
                 "educacion_continua": {
                     "id": 2,
-                    "nombre": "Educación Continua",
+                    "nombre": "EducaciÃ³n Continua",
                     "descripcion": "Cursos y capacitaciones",
                     "count": educacion_continua.count(),
                     "cursos": CursoListSerializer(educacion_continua, many=True).data,
@@ -413,15 +416,15 @@ class CursoViewSet(viewsets.ModelViewSet):
 
 
 
-# VIEWSET PARA CATEGORÍAS DE CURSOS
+# VIEWSET PARA CATEGORÃAS DE CURSOS
 class CategoriaCursoViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    ViewSet de solo lectura para categorías de cursos.
+    ViewSet de solo lectura para categorÃ­as de cursos.
 
     Endpoints:
-    - GET /api/academico/categorias/                      → Lista todas
-    - GET /api/academico/categorias/{id}/                 → Detalle
-    - GET /api/academico/categorias/por_coordinacion/     → Filtradas
+    - GET /api/academico/categorias/                      â Lista todas
+    - GET /api/academico/categorias/{id}/                 â Detalle
+    - GET /api/academico/categorias/por_coordinacion/     â Filtradas
     """
 
     queryset = CategoriaCurso.objects.filter(activo=True).order_by(
@@ -439,7 +442,7 @@ class CategoriaCursoViewSet(viewsets.ReadOnlyModelViewSet):
 
         if not coordinacion:
             return Response(
-                {"error": "Debe especificar el parámetro coordinacion (1 o 2)"},
+                {"error": "Debe especificar el parÃ¡metro coordinacion (1 o 2)"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -447,7 +450,7 @@ class CategoriaCursoViewSet(viewsets.ReadOnlyModelViewSet):
             coordinacion = int(coordinacion)
         except ValueError:
             return Response(
-                {"error": "El parámetro coordinacion debe ser 1 o 2"},
+                {"error": "El parÃ¡metro coordinacion debe ser 1 o 2"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -459,7 +462,7 @@ class CategoriaCursoViewSet(viewsets.ReadOnlyModelViewSet):
                 "coordinacion": coordinacion,
                 "coordinacion_nombre": "Vicerrectorado"
                 if coordinacion == 1
-                else "Educación Continua",
+                else "EducaciÃ³n Continua",
                 "count": categorias.count(),
                 "categorias": serializer.data,
             }
@@ -474,12 +477,12 @@ class InteresadoViewSet(viewsets.ModelViewSet):
     ViewSet para gestionar Interesados (Leads).
 
     Endpoints:
-    - GET    /api/academico/interesados/           → Lista (Admin)
-    - GET    /api/academico/interesados/{id}/      → Detalle (Admin)
-    - POST   /api/academico/interesado/            → Registrar interés (Público)
-    - PUT    /api/academico/interesados/{id}/      → Actualizar (Admin)
-    - DELETE /api/academico/interesados/{id}/      → Eliminar (Admin)
-    - POST   /api/academico/interesados/{id}/marcar_atendido/  → Marcar como atendido
+    - GET    /api/academico/interesados/           â Lista (Admin)
+    - GET    /api/academico/interesados/{id}/      â Detalle (Admin)
+    - POST   /api/academico/interesado/            â Registrar interÃ©s (PÃºblico)
+    - PUT    /api/academico/interesados/{id}/      â Actualizar (Admin)
+    - DELETE /api/academico/interesados/{id}/      â Eliminar (Admin)
+    - POST   /api/academico/interesados/{id}/marcar_atendido/  â Marcar como atendido
     """
 
     queryset = (
@@ -499,7 +502,7 @@ class InteresadoViewSet(viewsets.ModelViewSet):
         return InteresadoSerializer
 
     def get_permissions(self):
-        # Solo el POST de registro es público
+        # Solo el POST de registro es pÃºblico
         if self.action == "create":
             return [AllowAny()]
         return [IsAdminUser()]
@@ -542,7 +545,7 @@ class InteresadoViewSet(viewsets.ModelViewSet):
         """
         POST /api/academico/interesado/
 
-        Registra un nuevo interesado (formulario público).
+        Registra un nuevo interesado (formulario pÃºblico).
         """
         serializer = self.get_serializer(data=request.data)
 
@@ -551,7 +554,7 @@ class InteresadoViewSet(viewsets.ModelViewSet):
 
             return Response(
                 {
-                    "message": "¡Gracias por tu interés! Nos pondremos en contacto contigo pronto.",
+                    "message": "Â¡Gracias por tu interÃ©s! Nos pondremos en contacto contigo pronto.",
                     "data": {
                         "id": str(interesado.id),
                         "nombre": interesado.get_nombre_completo(),
@@ -611,7 +614,7 @@ class InteresadoViewSet(viewsets.ModelViewSet):
         interesado.atendido = True
         interesado.fecha_atencion = timezone.now()
 
-        # Guardar notas si se envían
+        # Guardar notas si se envÃ­an
         notas = request.data.get("notas")
         if notas:
             interesado.notas_seguimiento = notas
@@ -635,13 +638,13 @@ class EtiquetaViewSet(viewsets.ModelViewSet):
     ViewSet para gestionar Etiquetas de Posts.
 
     Endpoints:
-    - GET    /api/cms/etiquetas/              → Lista todas (público)
-    - GET    /api/cms/etiquetas/{id}/         → Detalle (público)
-    - POST   /api/cms/etiquetas/              → Crear (Admin)
-    - PUT    /api/cms/etiquetas/{id}/         → Actualizar (Admin)
-    - PATCH  /api/cms/etiquetas/{id}/         → Actualizar parcial (Admin)
-    - DELETE /api/cms/etiquetas/{id}/         → Eliminar (Admin)
-    - GET    /api/cms/etiquetas/activas/      → Solo etiquetas activas
+    - GET    /api/cms/etiquetas/              â Lista todas (pÃºblico)
+    - GET    /api/cms/etiquetas/{id}/         â Detalle (pÃºblico)
+    - POST   /api/cms/etiquetas/              â Crear (Admin)
+    - PUT    /api/cms/etiquetas/{id}/         â Actualizar (Admin)
+    - PATCH  /api/cms/etiquetas/{id}/         â Actualizar parcial (Admin)
+    - DELETE /api/cms/etiquetas/{id}/         â Eliminar (Admin)
+    - GET    /api/cms/etiquetas/activas/      â Solo etiquetas activas
     """
 
     queryset = Etiqueta.objects.all()
@@ -746,16 +749,16 @@ class PostViewSet(viewsets.ModelViewSet):
     ViewSet para gestionar Posts (Noticias, Blogs, Publicaciones).
 
     Endpoints:
-    - GET    /api/cms/posts/                  → Lista posts publicados
-    - GET    /api/cms/posts/{id}/             → Detalle de un post
-    - POST   /api/cms/posts/                  → Crear post (Admin)
-    - PUT    /api/cms/posts/{id}/             → Actualizar post (Admin)
-    - PATCH  /api/cms/posts/{id}/             → Actualizar parcial (Admin)
-    - DELETE /api/cms/posts/{id}/             → Eliminar post (Admin)
-    - GET    /api/cms/posts/destacados/       → Posts destacados
-    - GET    /api/cms/posts/por_tipo/         → Posts filtrados por tipo
-    - POST   /api/cms/posts/{id}/publicar/    → Publicar borrador (Admin)
-    - POST   /api/cms/posts/{id}/archivar/    → Archivar post (Admin)
+    - GET    /api/cms/posts/                  â Lista posts publicados
+    - GET    /api/cms/posts/{id}/             â Detalle de un post
+    - POST   /api/cms/posts/                  â Crear post (Admin)
+    - PUT    /api/cms/posts/{id}/             â Actualizar post (Admin)
+    - PATCH  /api/cms/posts/{id}/             â Actualizar parcial (Admin)
+    - DELETE /api/cms/posts/{id}/             â Eliminar post (Admin)
+    - GET    /api/cms/posts/destacados/       â Posts destacados
+    - GET    /api/cms/posts/por_tipo/         â Posts filtrados por tipo
+    - POST   /api/cms/posts/{id}/publicar/    â Publicar borrador (Admin)
+    - POST   /api/cms/posts/{id}/archivar/    â Archivar post (Admin)
     """
 
     queryset = Post.objects.select_related("autor").prefetch_related("etiquetas").all()
@@ -766,7 +769,7 @@ class PostViewSet(viewsets.ModelViewSet):
     ordering_fields = ["titulo", "fecha_publicacion", "creado_en"]
     ordering = ["-fecha_publicacion", "-creado_en"]
 
-    # Permitir búsqueda por slug además de id
+    # Permitir bÃºsqueda por slug ademÃ¡s de id
     lookup_field = "pk"
 
     def get_serializer_class(self):
@@ -909,14 +912,14 @@ class PostViewSet(viewsets.ModelViewSet):
         GET /api/cms/posts/por_tipo/?tipo=noticia
 
         Retorna posts filtrados por tipo.
-        Tipos válidos: noticia, blog, publicacion
+        Tipos vÃ¡lidos: noticia, blog, publicacion
         """
         tipo = request.query_params.get("tipo")
 
         if not tipo:
             return Response(
                 {
-                    "error": "Debe especificar el parámetro tipo (noticia, blog, publicacion)"
+                    "error": "Debe especificar el parÃ¡metro tipo (noticia, blog, publicacion)"
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -925,7 +928,7 @@ class PostViewSet(viewsets.ModelViewSet):
         if tipo not in tipos_validos:
             return Response(
                 {
-                    "error": f"Tipo inválido. Valores permitidos: {', '.join(tipos_validos)}"
+                    "error": f"Tipo invÃ¡lido. Valores permitidos: {', '.join(tipos_validos)}"
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -978,7 +981,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
         if post.estado == "publicado":
             return Response(
-                {"message": "Este post ya está publicado"}, status=status.HTTP_200_OK
+                {"message": "Este post ya estÃ¡ publicado"}, status=status.HTTP_200_OK
             )
 
         post.estado = "publicado"
@@ -1006,7 +1009,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
         if post.estado == "archivado":
             return Response(
-                {"message": "Este post ya está archivado"}, status=status.HTTP_200_OK
+                {"message": "Este post ya estÃ¡ archivado"}, status=status.HTTP_200_OK
             )
 
         post.estado = "archivado"
@@ -1030,13 +1033,13 @@ class AutoridadViewSet(viewsets.ModelViewSet):
     ViewSet para gestionar Autoridades del ISTEPS.
 
     Endpoints:
-    - GET    /api/instituto/autoridades/           → Lista autoridades activas
-    - GET    /api/instituto/autoridades/{id}/      → Detalle de autoridad
-    - POST   /api/instituto/autoridades/           → Crear autoridad (Admin)
-    - PUT    /api/instituto/autoridades/{id}/      → Actualizar (Admin)
-    - PATCH  /api/instituto/autoridades/{id}/      → Actualizar parcial (Admin)
-    - DELETE /api/instituto/autoridades/{id}/      → Eliminar (Admin)
-    - GET    /api/instituto/autoridades/por_cargo/ → Agrupar por cargo
+    - GET    /api/instituto/autoridades/           â Lista autoridades activas
+    - GET    /api/instituto/autoridades/{id}/      â Detalle de autoridad
+    - POST   /api/instituto/autoridades/           â Crear autoridad (Admin)
+    - PUT    /api/instituto/autoridades/{id}/      â Actualizar (Admin)
+    - PATCH  /api/instituto/autoridades/{id}/      â Actualizar parcial (Admin)
+    - DELETE /api/instituto/autoridades/{id}/      â Eliminar (Admin)
+    - GET    /api/instituto/autoridades/por_cargo/ â Agrupar por cargo
     """
 
     queryset = Autoridad.objects.all().order_by("orden", "apellidos")
@@ -1149,7 +1152,7 @@ class AutoridadViewSet(viewsets.ModelViewSet):
 
         queryset = self.get_queryset()
 
-        # Orden de cargos según jerarquía
+        # Orden de cargos segÃºn jerarquÃ­a
         orden_cargos = [
             "rector",
             "vicerrector",
@@ -1182,12 +1185,12 @@ class DocumentoTransparenciaViewSet(viewsets.ModelViewSet):
     ViewSet para gestionar Documentos de Transparencia.
 
     Endpoints:
-    - GET    /api/transparencia/documentos/              → Lista documentos
-    - GET    /api/transparencia/documentos/{id}/         → Detalle documento
-    - POST   /api/transparencia/documentos/              → Subir documento (Admin)
-    - DELETE /api/transparencia/documentos/{id}/         → Eliminar (Admin)
-    - GET    /api/transparencia/documentos/por_categoria/ → Agrupar por categoría
-    - GET    /api/transparencia/documentos/categorias/   → Lista de categorías
+    - GET    /api/transparencia/documentos/              â Lista documentos
+    - GET    /api/transparencia/documentos/{id}/         â Detalle documento
+    - POST   /api/transparencia/documentos/              â Subir documento (Admin)
+    - DELETE /api/transparencia/documentos/{id}/         â Eliminar (Admin)
+    - GET    /api/transparencia/documentos/por_categoria/ â Agrupar por categorÃ­a
+    - GET    /api/transparencia/documentos/categorias/   â Lista de categorÃ­as
     """
 
     queryset = DocumentoTransparencia.objects.select_related("subido_por").all()
@@ -1270,7 +1273,7 @@ class DocumentoTransparenciaViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         titulo = instance.titulo
 
-        # Eliminar el archivo físico también
+        # Eliminar el archivo fÃ­sico tambiÃ©n
         if instance.archivo:
             instance.archivo.delete(save=False)
 
@@ -1286,13 +1289,13 @@ class DocumentoTransparenciaViewSet(viewsets.ModelViewSet):
         """
         GET /api/transparencia/documentos/por_categoria/
 
-        Retorna documentos agrupados por categoría.
+        Retorna documentos agrupados por categorÃ­a.
         """
         from collections import OrderedDict
 
         queryset = self.get_queryset()
 
-        # Orden de categorías
+        # Orden de categorÃ­as
         orden_categorias = [
             "normativa",
             "reglamentos",
@@ -1326,7 +1329,7 @@ class DocumentoTransparenciaViewSet(viewsets.ModelViewSet):
         """
         GET /api/transparencia/documentos/categorias/
 
-        Lista las categorías disponibles con conteo de documentos.
+        Lista las categorÃ­as disponibles con conteo de documentos.
         """
         from django.db.models import Count
 
@@ -1395,11 +1398,11 @@ def estudiantes_curso(request, course_id):
         }
 
         # Moodle se demora mucho construyendo el JSON de miles de estudiantes. 
-        # Aumentamos el timeout a 45s (solo pasará 1 vez gracias al caché)
+        # Aumentamos el timeout a 45s (solo pasarÃ¡ 1 vez gracias al cachÃ©)
         try:
             response = requests.get(url, params=params, timeout=45)
         except requests.exceptions.Timeout:
-            return Response({"error": "Timeout", "detalle": "Moodle tardó demasiado en responder (>45 seg)"}, status=504)
+            return Response({"error": "Timeout", "detalle": "Moodle tardÃ³ demasiado en responder (>45 seg)"}, status=504)
 
         if response.status_code != 200:
             return Response(
@@ -1409,7 +1412,7 @@ def estudiantes_curso(request, course_id):
 
         data = response.json()
 
-        # 🔥 Moodle a veces devuelve errores HTTP 200 como diccionarios
+        # ð¥ Moodle a veces devuelve errores HTTP 200 como diccionarios
         if isinstance(data, dict):
             return Response({
                 "error": "Error desde Moodle o curso inaccesible",
@@ -1422,10 +1425,10 @@ def estudiantes_curso(request, course_id):
         total_estudiantes = len(data)
         
         # Como el frontend ahora es minimalista,
-        # NO necesitamos procesar ni enviar la lista de estudiantes para ahorrar ancho de banda al máximo.
+        # NO necesitamos procesar ni enviar la lista de estudiantes para ahorrar ancho de banda al mÃ¡ximo.
         estudiantes = []
 
-        # Guardamos en caché tanto a los estudiantes como el total
+        # Guardamos en cachÃ© tanto a los estudiantes como el total
         cache_data_to_save = {"estudiantes": estudiantes, "total": total_estudiantes}
         cache.set(cache_key, cache_data_to_save, timeout=43200)
 
@@ -1433,10 +1436,39 @@ def estudiantes_curso(request, course_id):
         resp = Response(estudiantes, status=200)
         # y enviamos el total como un header HTTP
         resp["X-Total-Count"] = str(total_estudiantes)
-        # 🚨 VITAL: Exponer el header a través de CORS para que el Javascript del front pueda leerlo 🚨
+        # ð¨ VITAL: Exponer el header a travÃ©s de CORS para que el Javascript del front pueda leerlo ð¨
         resp["Access-Control-Expose-Headers"] = "X-Total-Count"
         
         return resp
 
     except Exception as e:
         return Response({"error": "Error Interno", "detalle": str(e)}, status=500)
+
+class ImagenCarruselViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar imágenes de carruseles.
+    - Público puede leer (GET).
+    - Solo admin puede crear, editar y eliminar.
+    """
+    queryset = ImagenCarrusel.objects.all()
+    serializer_class = ImagenCarruselSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["seccion", "titulo"]
+    ordering_fields = ["seccion", "orden", "creado_en"]
+    ordering = ["seccion", "orden"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve", "por_seccion"]:
+            return [AllowAny()]
+        return [IsAdminUser()]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(activo=True)
+            
+        seccion = self.request.query_params.get("seccion")
+        if seccion:
+            queryset = queryset.filter(seccion=seccion)
+            
+        return queryset

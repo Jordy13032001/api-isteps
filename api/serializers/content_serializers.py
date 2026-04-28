@@ -10,6 +10,7 @@ from content.models import (
     Etiqueta,
     Autoridad,
     DocumentoTransparencia,
+    ImagenCarrusel,
 )
 
 
@@ -1027,6 +1028,25 @@ class DocumentoTransparenciaDetailSerializer(serializers.ModelSerializer):
             "subido_en",
             "actualizado_en",
         ]
+
+
+class ImagenCarruselSerializer(serializers.ModelSerializer):
+    imagen = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ImagenCarrusel
+        fields = [
+            "id",
+            "seccion",
+            "titulo",
+            "imagen",
+            "url_destino",
+            "orden",
+            "activo",
+        ]
+
+    def get_imagen(self, obj):
+        return obj.get_imagen()
 
     def get_archivo_url(self, obj):
         if obj.archivo:
