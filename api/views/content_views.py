@@ -266,6 +266,7 @@ class CursoViewSet(viewsets.ModelViewSet):
         estado = self.request.query_params.get("estado")
         plataforma = self.request.query_params.get("plataforma")
         destacado = self.request.query_params.get("destacado")
+        tipo = self.request.query_params.get("tipo")
 
         if coordinacion:
             queryset = queryset.filter(coordinacion=coordinacion)
@@ -280,6 +281,8 @@ class CursoViewSet(viewsets.ModelViewSet):
         if destacado is not None:
             destacado_bool = destacado.lower() in ["true", "1", "si", "yes"]
             queryset = queryset.filter(destacado=destacado_bool)
+        if tipo:
+            queryset = queryset.filter(tipo=tipo)
 
         return queryset
 
@@ -379,6 +382,35 @@ class CursoViewSet(viewsets.ModelViewSet):
                 },
             }
         )
+
+    @action(detail=False, methods=["get"], permission_classes=[AllowAny])
+    def carreras(self, request):
+        """
+        GET /api/academico/programas/carreras/
+        Retorna solo los cursos de tipo carrera.
+        """
+        queryset = self.filter_queryset(self.get_queryset().filter(tipo="carrera"))
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({"count": queryset.count(), "results": serializer.data})
+
+    @action(detail=False, methods=["get"], permission_classes=[AllowAny])
+    def moodle_destacados(self, request):
+        """
+        GET /api/academico/programas/moodle_destacados/
+        Retorna solo los cursos destacados provenientes de Moodle.
+        """
+        queryset = self.filter_queryset(self.get_queryset().filter(tipo="moodle", destacado=True))
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({"count": queryset.count(), "results": serializer.data})
+
 
 
 # VIEWSET PARA CATEGORÍAS DE CURSOS
