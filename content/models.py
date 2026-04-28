@@ -259,8 +259,8 @@ class Curso(models.Model):
 
     class Meta:
         db_table = "cursos"
-        verbose_name = "Curso"
-        verbose_name_plural = "Cursos"
+        verbose_name = "Programa Académico (Base)"
+        verbose_name_plural = "Programas Académicos (Base)"
         ordering = ["-creado_en"]
         indexes = [
             models.Index(fields=["plataforma"]),
@@ -273,6 +273,25 @@ class Curso(models.Model):
             models.Index(fields=["jornada"]),
             models.Index(fields=["modalidad"]),
         ]
+
+class Carrera(Curso):
+    """
+    Modelo Proxy para administrar exclusivamente las Carreras en el Django Admin
+    """
+    class Meta:
+        proxy = True
+        verbose_name = "Carrera"
+        verbose_name_plural = "Carreras"
+
+class CursoMoodle(Curso):
+    """
+    Modelo Proxy para administrar exclusivamente los cursos destacados de Moodle
+    """
+    class Meta:
+        proxy = True
+        verbose_name = "Curso Moodle Destacado"
+        verbose_name_plural = "Cursos Moodle Destacados"
+
 
     def __str__(self):
         return f"{self.titulo} - {self.plataforma.nombre}"

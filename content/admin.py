@@ -3,6 +3,8 @@ from django.urls import path
 from django.http import JsonResponse
 from .models import (
     Curso,
+    Carrera,
+    CursoMoodle,
     RecursoAcademico,
     AccesoRecurso,
     NoticiasPopup,
@@ -31,14 +33,15 @@ class CategoriaCursoAdmin(admin.ModelAdmin):
 
 
 # ============================================
-# ADMIN PARA CURSO CON FILTRO DINÁMICO
+# ADMIN PARA CARRERA (Proxy de Curso)
 # ============================================
-@admin.register(Curso)
-class CursoAdmin(admin.ModelAdmin):
-    list_display = ["titulo", "tipo", "coordinacion", "categoria_curso", "plataforma", "costo_total", "cuotas", "destacado", "estado"]
-    list_filter = ["tipo", "destacado", "coordinacion", "categoria_curso", "plataforma", "estado", "nivel", "modalidad"]
+@admin.register(Carrera)
+class CarreraAdmin(admin.ModelAdmin):
+    list_display = ["titulo", "coordinacion", "categoria_curso", "plataforma", "costo_total", "cuotas", "destacado", "estado"]
+    list_filter = ["destacado", "coordinacion", "categoria_curso", "plataforma", "estado", "nivel", "modalidad"]
     search_fields = ["titulo", "codigo_externo"]
     ordering = ["-creado_en"]
+    exclude = ["tipo"] # Se auto-asigna en save_model
     fieldsets = ( 
         (
             "Información Básica",
@@ -47,7 +50,6 @@ class CursoAdmin(admin.ModelAdmin):
                     "plataforma",
                     "codigo_externo",
                     "titulo",
-                    "tipo",
                     "descripcion",
                     "imagen_url",
                 )
@@ -108,6 +110,15 @@ class CursoAdmin(admin.ModelAdmin):
     class Media:
         js = ("admin/js/filtro_categoria_curso.js",)
 
+    def get_queryset(self, request):
+        """Filtra para mostrar solo las carreras"""
+        return super().get_queryset(request).filter(tipo="carrera")
+
+    def save_model(self, request, obj, form, change):
+        """Fuerza que el tipo siempre sea carrera"""
+        obj.tipo = "carrera"
+        super().save_model(request, obj, form, change)
+
     def get_urls(self):
         """Agrega URL personalizada para obtener categorías por AJAX"""
         urls = super().get_urls()
@@ -115,7 +126,7 @@ class CursoAdmin(admin.ModelAdmin):
             path(
                 "ajax/categorias/<int:coordinacion_id>/",
                 self.admin_site.admin_view(self.get_categorias_ajax),
-                name="curso_get_categorias",
+                name="carrera_get_categorias",
             ),
         ]
         return custom_urls + urls
@@ -126,4 +137,50 @@ class CursoAdmin(admin.ModelAdmin):
             coordinacion=coordinacion_id, activo=True
         ).values("id", "nombre")
 
-        return JsonResponse(list(categorias), safe=False) 
+        return JsonResponse(list(categorias), safe=False)
+
+
+# ============================================
+# ADMIN PARA CURSO MOODLE (Proxy de Curso)
+# ============================================
+@admin.register(CursoMoodle)
+class CursoMoodleAdmin(admin.ModelAdmin):
+    list_display = ["titulo", "codigo_externo", "plataforma", "destacado", "estado"]
+    list_filter = ["destacado", "estado", "plataforma"]
+    search_fields = ["titulo", "codigo_externo"]
+    ordering = ["-creado_en"]
+    exclude = ["tipo"]
+
+    fieldsets = (
+        (
+            "Información del Curso en Moodle",
+            {
+                "fields": (
+                    "plataforma",
+                    "codigo_externo",
+                    "titulo",
+                    "descripcion",
+                    "imagen_url",
+                ),
+                "description": "Ingrese los datos básicos o el ID (código externo) para vincular con Moodle.",
+            },
+        ),
+        (
+            "Visibilidad en la Web",
+            {
+                "fields": (
+                    "destacado",
+                    "estado",
+                )
+            },
+        ),
+    )
+
+    def get_queryset(self, request):
+        """Filtra para mostrar solo los cursos de moodle"""
+        return super().get_queryset(request).filter(tipo="moodle")
+
+    def save_model(self, request, obj, form, change):
+        """Fuerza que el tipo siempre sea moodle"""
+        obj.tipo = "moodle"
+        super().save_model(request, obj, form, change) 
