@@ -46,7 +46,7 @@ class CarreraForm(forms.ModelForm):
         instance = super().save(commit=False)
         instance.tipo = "carrera"
         
-        # Autogenerar un código externo dummy para cumplir con el modelo
+        # Autogenerar un cÃ³digo externo dummy para cumplir con el modelo
         if not instance.codigo_externo:
             import uuid
             instance.codigo_externo = f"carrera-{uuid.uuid4().hex[:8]}"
@@ -71,7 +71,7 @@ class CarreraAdmin(admin.ModelAdmin):
     
     fieldsets = ( 
         (
-            "Información Básica",
+            "InformaciÃ³n BÃ¡sica",
             {
                 "fields": (
                     "titulo",
@@ -80,9 +80,9 @@ class CarreraAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        ("Clasificación", {"fields": ("coordinacion", "categoria_curso", "nivel", "titulo_obtenido")}),
+        ("ClasificaciÃ³n", {"fields": ("coordinacion", "categoria_curso", "nivel", "titulo_obtenido")}),
         (
-            "Detalles Académicos y Duración",
+            "Detalles AcadÃ©micos y DuraciÃ³n",
             {
                 "fields": (
                     "duracion_valor",
@@ -119,7 +119,7 @@ class CarreraAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Contenido y Documentación",
+            "Contenido y DocumentaciÃ³n",
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -140,7 +140,7 @@ class CarreraAdmin(admin.ModelAdmin):
         return super().get_queryset(request).filter(tipo="carrera")
 
     def get_urls(self):
-        """Agrega URL personalizada para obtener categorías por AJAX"""
+        """Agrega URL personalizada para obtener categorÃ­as por AJAX"""
         urls = super().get_urls()
         custom_urls = [
             path(
@@ -152,7 +152,7 @@ class CarreraAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def get_categorias_ajax(self, request, coordinacion_id):
-        """Endpoint AJAX que retorna categorías filtradas por coordinación"""
+        """Endpoint AJAX que retorna categorÃ­as filtradas por coordinaciÃ³n"""
         categorias = CategoriaCurso.objects.filter(
             coordinacion=coordinacion_id, activo=True
         ).values("id", "nombre")
@@ -171,14 +171,14 @@ class CursoMoodleForm(forms.ModelForm):
             "codigo_externo": "ID Curso Moodle",
         }
         help_texts = {
-            "codigo_externo": "ID numérico del curso en la plataforma Moodle",
+            "codigo_externo": "ID numÃ©rico del curso en la plataforma Moodle",
         }
 
     def save(self, commit=True):
         instance = super().save(commit=False)
         instance.tipo = "moodle"
         
-        # Generar título por defecto si no existe
+        # Generar tÃ­tulo por defecto si no existe
         if not instance.titulo:
             instance.titulo = f"Curso Moodle Destacado #{instance.codigo_externo}"
             
@@ -210,7 +210,7 @@ class CursoMoodleAdmin(admin.ModelAdmin):
                 "fields": (
                     "codigo_externo",
                 ),
-                "description": "Ingrese únicamente el ID del curso para vincularlo con Moodle.",
+                "description": "Ingrese Ãºnicamente el ID del curso para vincularlo con Moodle.",
             },
         ),
         (
@@ -227,3 +227,19 @@ class CursoMoodleAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Filtra para mostrar solo los cursos de moodle"""
         return super().get_queryset(request).filter(tipo="moodle")
+@admin.register(ImagenCarrusel)
+class ImagenCarruselAdmin(admin.ModelAdmin):
+    list_display = ["seccion", "titulo_o_id", "url_destino_preview", "orden", "activo", "creado_en"]
+    list_filter = ["seccion", "activo"]
+    search_fields = ["titulo", "seccion"]
+    ordering = ["seccion", "orden"]
+    
+    def titulo_o_id(self, obj):
+        return obj.titulo if obj.titulo else f"Imagen #{str(obj.id)[:8]}"
+    titulo_o_id.short_description = "Título"
+    
+    def url_destino_preview(self, obj):
+        if obj.url_destino:
+            return f"{obj.url_destino[:30]}..." if len(obj.url_destino) > 30 else obj.url_destino
+        return "-"
+    url_destino_preview.short_description = "Enlace de Redirección"
