@@ -7,7 +7,7 @@ class Curso(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        help_text="Identificador Ãºnico del curso",
+        help_text="Identificador único del curso",
     )
 
     plataforma = models.ForeignKey(
@@ -34,14 +34,14 @@ class Curso(models.Model):
 
     COORDINACION_CHOICES = [
         (1, "Vicerrectorado"),
-        (2, "EducaciÃ³n Continua"),
+        (2, "Educación Continua"),
     ]
 
     coordinacion = models.IntegerField(
         choices=COORDINACION_CHOICES,
         null=True,
         blank=True,
-        help_text="1=Vicerrectorado, 2=EducaciÃ³n Continua",
+        help_text="1=Vicerrectorado, 2=Educación Continua",
     )
 
     categoria_curso = models.ForeignKey(
@@ -50,11 +50,11 @@ class Curso(models.Model):
         null=True,
         blank=True,
         related_name="cursos",
-        help_text="CategorÃ­a segÃºn la coordinaciÃ³n elegida",
+        help_text="Categoría según la coordinación elegida",
     )
 
     NIVEL_CHOICES = [
-        ("basico", "BÃ¡sico"),
+        ("basico", "Básico"),
         ("intermedio", "Intermedio"),
         ("avanzado", "Avanzado"),
     ]
@@ -70,19 +70,19 @@ class Curso(models.Model):
     duracion_valor = models.IntegerField(
         blank=True,
         null=True,
-        help_text="Cantidad numÃ©rica de la duraciÃ³n",
+        help_text="Cantidad numérica de la duración",
     )
     
     UNIDAD_DURACION_CHOICES = [
         ("horas", "Horas"),
-        ("anios", "AÃ±os"),
+        ("anios", "Años"),
     ]
 
     unidad_duracion = models.CharField(
         max_length=10,
         choices=UNIDAD_DURACION_CHOICES,
         default="horas",
-        help_text="Define si la duraciÃ³n es en horas o aÃ±os",
+        help_text="Define si la duración es en horas o años",
     )
 
     imagen_url = models.URLField(
@@ -101,7 +101,7 @@ class Curso(models.Model):
     fecha_fin = models.DateField(
         blank=True,
         null=True,
-        help_text="Fecha de finalizaciÃ³n del curso",
+        help_text="Fecha de finalización del curso",
     )
 
     fecha_inicio_publicidad = models.DateField(
@@ -116,7 +116,7 @@ class Curso(models.Model):
         max_length=255,
         null=True,
         blank=True,
-        help_text="TÃ­tulo que obtiene el estudiante",
+        help_text="Título que obtiene el estudiante",
     )
 
     JORNADA_CHOICES = [
@@ -138,7 +138,7 @@ class Curso(models.Model):
     MODALIDAD_CHOICES = [
         ("presencial", "Presencial"),
         ("virtual", "Virtual"),
-        ("hibrida", "HÃ­brida"),
+        ("hibrida", "Híbrida"),
         ("dual", "Dual"),
     ]
 
@@ -154,7 +154,7 @@ class Curso(models.Model):
         max_length=255,
         null=True,
         blank=True,
-        help_text="DÃ­as de clases",
+        help_text="Días de clases",
     )
 
     horario = models.CharField(
@@ -169,8 +169,8 @@ class Curso(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
-        verbose_name="Costo de MatrÃ­cula",
-        help_text="Costo de matrÃ­cula inicial en USD",
+        verbose_name="Costo de Matrícula",
+        help_text="Costo de matrícula inicial en USD",
     )
 
     costo_total = models.DecimalField(
@@ -185,16 +185,16 @@ class Curso(models.Model):
     cuotas = models.IntegerField(
         null=True, 
         blank=True, 
-        verbose_name="NÃºmero de Cuotas",
+        verbose_name="Número de Cuotas",
         help_text="Cantidad de cuotas en las que se puede diferir el pago",
     )
 
     resolucion = models.TextField(
-        null=True, blank=True, help_text="NÃºmero de resoluciÃ³n oficial del curso"
+        null=True, blank=True, help_text="Número de resolución oficial del curso"
     )
 
     presentacion = models.TextField(
-        null=True, blank=True, help_text="PresentaciÃ³n/introducciÃ³n del curso"
+        null=True, blank=True, help_text="Presentación/introducción del curso"
     )
 
     perfil_profesional = models.TextField(
@@ -239,28 +239,28 @@ class Curso(models.Model):
         max_length=20,
         choices=TIPO_CHOICES,
         default="carrera",
-        help_text="Define si es una Carrera de la instituciÃ³n o un curso destacado de Moodle",
+        help_text="Define si es una Carrera de la institución o un curso destacado de Moodle",
     )
 
     destacado = models.BooleanField(
         default=False,
-        help_text="Indica si el curso debe aparecer en la secciÃ³n de destacados",
+        help_text="Indica si el curso debe aparecer en la sección de destacados",
     )
 
     creado_en = models.DateTimeField(
         auto_now_add=True,
-        help_text="Fecha de creaciÃ³n del registro",
+        help_text="Fecha de creación del registro",
     )
 
     actualizado_en = models.DateTimeField(
         auto_now=True,
-        help_text="Fecha de Ãºltima actualizaciÃ³n",
+        help_text="Fecha de última actualización",
     )
 
     class Meta:
         db_table = "cursos"
-        verbose_name = "Programa AcadÃ©mico (Base)"
-        verbose_name_plural = "Programas AcadÃ©micos (Base)"
+        verbose_name = "Programa Académico (Base)"
+        verbose_name_plural = "Programas Académicos (Base)"
         ordering = ["-creado_en"]
         indexes = [
             models.Index(fields=["plataforma"]),
@@ -297,17 +297,17 @@ class CursoMoodle(Curso):
         return f"{self.titulo} - {self.plataforma.nombre}"
 
     def esta_activo(self):
-        """Retorna True si el curso estÃ¡ activo"""
+        """Retorna True si el curso está activo"""
         return self.estado == "activo"
 
     def esta_publicado(self):
-        """Retorna True si el curso estÃ¡ en periodo de publicidad"""
+        """Retorna True si el curso está en periodo de publicidad"""
         from django.utils import timezone
 
         hoy = timezone.localdate()
 
         if not self.fecha_inicio_publicidad and not self.fecha_fin_publicidad:
-            return True  # Sin restricciÃ³n de fechas
+            return True  # Sin restricción de fechas
 
         if self.fecha_inicio_publicidad and self.fecha_inicio_publicidad > hoy:
             return False
@@ -318,7 +318,7 @@ class CursoMoodle(Curso):
         return True
 
     def get_info_completa(self):
-        """Retorna informaciÃ³n completa del curso"""
+        """Retorna información completa del curso"""
         coordinador = (
             f"{self.coordinador.nombre} {self.coordinador.apellido}"
             if self.coordinador
@@ -333,7 +333,7 @@ class CursoMoodle(Curso):
             else "Sin asignar",
             "categoria": self.categoria_curso.nombre
             if self.categoria_curso
-            else "Sin categorÃ­a",
+            else "Sin categoría",
             "nivel": self.get_nivel_display() if self.nivel else "No especificado",
             "duracion": f"{self.duracion_valor} {self.get_unidad_duracion_display()}"
             if self.duracion_valor
@@ -355,25 +355,25 @@ class CursoMoodle(Curso):
 
 class CategoriaCurso(models.Model):
     """
-    CategorÃ­as de cursos segÃºn coordinaciÃ³n.
+    Categorías de cursos según coordinación.
     - Vicerrectorado: Tercer Nivel, Cuarto Nivel
-    - EducaciÃ³n Continua: GastronomÃ­a, TecnologÃ­a, etc.
+    - Educación Continua: Gastronomía, Tecnología, etc.
     """
 
     COORDINACION_CHOICES = [
         (1, "Vicerrectorado"),
-        (2, "EducaciÃ³n Continua"),
+        (2, "Educación Continua"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     coordinacion = models.IntegerField(
-        choices=COORDINACION_CHOICES, help_text="1=Vicerrectorado, 2=EducaciÃ³n Continua"
+        choices=COORDINACION_CHOICES, help_text="1=Vicerrectorado, 2=Educación Continua"
     )
 
     nombre = models.CharField(
         max_length=100,
-        help_text="Nombre de la categorÃ­a (Tercer Nivel, GastronomÃ­a, etc.)",
+        help_text="Nombre de la categoría (Tercer Nivel, Gastronomía, etc.)",
     )
 
     descripcion = models.TextField(blank=True, null=True)
@@ -382,8 +382,8 @@ class CategoriaCurso(models.Model):
 
     class Meta:
         db_table = "categorias_curso"
-        verbose_name = "CategorÃ­a de Curso"
-        verbose_name_plural = "CategorÃ­as de Cursos"
+        verbose_name = "Categoría de Curso"
+        verbose_name_plural = "Categorías de Cursos"
         unique_together = [["coordinacion", "nombre"]]
 
     def __str__(self):
@@ -396,7 +396,7 @@ class RecursoAcademico(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        help_text="Identificador Ãºnico del recurso acadÃ©mico",
+        help_text="Identificador único del recurso académico",
     )
     curso = models.ForeignKey(
         "Curso",
@@ -409,7 +409,7 @@ class RecursoAcademico(models.Model):
         "integration.Plataforma",
         on_delete=models.CASCADE,
         related_name="recursos",
-        help_text="Plataforma donde estÃ¡ alojado el recurso",
+        help_text="Plataforma donde está alojado el recurso",
     )
 
     codigo_externo = models.CharField(
@@ -419,16 +419,16 @@ class RecursoAcademico(models.Model):
 
     titulo = models.CharField(
         max_length=255,
-        help_text="TÃ­tulo del recurso",
+        help_text="Título del recurso",
     )
 
     TIPO_CHOICES = [
         ("video", "Video"),
         ("pdf", "PDF"),
-        ("evaluacion", "EvaluaciÃ³n"),
+        ("evaluacion", "Evaluación"),
         ("enlace", "Enlace"),
         ("documento", "Documento"),
-        ("presentacion", "PresentaciÃ³n"),
+        ("presentacion", "Presentación"),
     ]
 
     tipo = models.CharField(
@@ -463,34 +463,34 @@ class RecursoAcademico(models.Model):
     tamano_bytes = models.BigIntegerField(
         blank=True,
         null=True,
-        help_text="TamaÃ±o del archivo en bytes",
+        help_text="Tamaño del archivo en bytes",
     )
 
     duracion_segundos = models.IntegerField(
         blank=True,
         null=True,
-        help_text="DuraciÃ³n en segundos (solo para videos)",
+        help_text="Duración en segundos (solo para videos)",
     )
 
     orden = models.IntegerField(
         default=0,
-        help_text="Orden de presentaciÃ³n dentro del curso",
+        help_text="Orden de presentación dentro del curso",
     )
 
     activo = models.BooleanField(
         default=True,
-        help_text="Si el recurso estÃ¡ disponible",
+        help_text="Si el recurso está disponible",
     )
 
     creado_en = models.DateTimeField(
         auto_now_add=True,
-        help_text="Fecha de creaciÃ³n del registro",
+        help_text="Fecha de creación del registro",
     )
 
     class Meta:
         db_table = "recursos_academicos"
-        verbose_name = "Recurso AcadÃ©mico"
-        verbose_name_plural = "Recursos AcadÃ©micos"
+        verbose_name = "Recurso Académico"
+        verbose_name_plural = "Recursos Académicos"
         ordering = ["curso", "orden"]
         indexes = [
             models.Index(fields=["curso"]),
@@ -504,7 +504,7 @@ class RecursoAcademico(models.Model):
         return f"{self.titulo} ({self.get_tipo_display()}) - {self.curso.titulo}"
 
     def get_tamano_legible(self):
-        """Retorna el tamaÃ±o en formato legible"""
+        """Retorna el tamaño en formato legible"""
         if not self.tamano_bytes:
             return "N/A"
 
@@ -518,7 +518,7 @@ class RecursoAcademico(models.Model):
             return f"{mb:.2f} MB"
 
     def get_duracion_legible(self):
-        """Retorna la duraciÃ³n en formato legible"""
+        """Retorna la duración en formato legible"""
         if not self.duracion_segundos:
             return "N/A"
 
@@ -534,15 +534,15 @@ class RecursoAcademico(models.Model):
             return f"{segundos}s"
 
     def get_info_completa(self):
-        """Retorna informaciÃ³n completa del recurso"""
+        """Retorna información completa del recurso"""
         return {
             "titulo": self.titulo,
             "tipo": self.get_tipo_display(),
             "formato": self.get_formato_display() if self.formato else "N/A",
             "curso": self.curso.titulo,
             "plataforma": self.plataforma.nombre,
-            "tamaÃ±o": self.get_tamano_legible(),
-            "duraciÃ³n": self.get_duracion_legible(),
+            "tamaño": self.get_tamano_legible(),
+            "duración": self.get_duracion_legible(),
             "orden": self.orden,
             "activo": self.activo,
         }
@@ -553,7 +553,7 @@ class AccesoRecurso(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        help_text="Identificador Ãºnico del acceso",
+        help_text="Identificador único del acceso",
     )
 
     recurso = models.ForeignKey(
@@ -569,7 +569,7 @@ class AccesoRecurso(models.Model):
         null=True,
         blank=True,
         related_name="accesos_recursos",
-        help_text="Usuario que accediÃ³ al recurso",
+        help_text="Usuario que accedió al recurso",
     )
 
     sesion = models.ForeignKey(
@@ -578,7 +578,7 @@ class AccesoRecurso(models.Model):
         null=True,
         blank=True,
         related_name="accesos_recursos",
-        help_text="SesiÃ³n en la que se accediÃ³ al recurso",
+        help_text="Sesión en la que se accedió al recurso",
     )
 
     plataforma = models.ForeignKey(
@@ -587,13 +587,13 @@ class AccesoRecurso(models.Model):
         null=True,
         blank=True,
         related_name="accesos_recursos",
-        help_text="Plataforma donde se accediÃ³ al recurso",
+        help_text="Plataforma donde se accedió al recurso",
     )
 
     TIPO_ACCESO_CHOICES = [
         ("descarga", "Descarga"),
-        ("visualizacion", "VisualizaciÃ³n"),
-        ("reproduccion", "ReproducciÃ³n"),
+        ("visualizacion", "Visualización"),
+        ("reproduccion", "Reproducción"),
     ]
 
     tipo_acceso = models.CharField(
@@ -609,7 +609,7 @@ class AccesoRecurso(models.Model):
 
     tiempo_acceso_segundos = models.IntegerField(
         default=0,
-        help_text="Tiempo que el usuario pasÃ³ con el recurso (en segundos)",
+        help_text="Tiempo que el usuario pasó con el recurso (en segundos)",
     )
 
     timestamp = models.DateTimeField(
@@ -632,13 +632,13 @@ class AccesoRecurso(models.Model):
         ]
 
     def __str__(self):
-        usuario_str = self.usuario.username if self.usuario else "AnÃ³nimo"
+        usuario_str = self.usuario.username if self.usuario else "Anónimo"
         return (
             f"{usuario_str} - {self.get_tipo_acceso_display()} - {self.recurso.titulo}"
         )
 
     def fue_completado(self):
-        """Retorna True si el usuario completÃ³ el recurso"""
+        """Retorna True si el usuario completó el recurso"""
         return self.porcentaje_completado >= 100
 
     def get_tiempo_legible(self):
@@ -658,9 +658,9 @@ class AccesoRecurso(models.Model):
             return f"{segundos}s"
 
     def get_info_completa(self):
-        """Retorna informaciÃ³n completa del acceso"""
+        """Retorna información completa del acceso"""
         return {
-            "usuario": self.usuario.username if self.usuario else "AnÃ³nimo",
+            "usuario": self.usuario.username if self.usuario else "Anónimo",
             "recurso": self.recurso.titulo,
             "tipo": self.get_tipo_acceso_display(),
             "porcentaje": f"{self.porcentaje_completado}%",
@@ -680,12 +680,12 @@ class NoticiasPopup(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        help_text="Identificador Ãºnico de la noticia popup",
+        help_text="Identificador único de la noticia popup",
     )
 
     nombre = models.CharField(
         max_length=255,
-        help_text="TÃ­tulo de la noticia emergente",
+        help_text="Título de la noticia emergente",
     )
 
     descripcion = models.TextField(
@@ -711,7 +711,7 @@ class NoticiasPopup(models.Model):
 
     estado = models.BooleanField(
         default=False,
-        help_text="Si la noticia estÃ¡ activa (True) o inactiva (False)",
+        help_text="Si la noticia está activa (True) o inactiva (False)",
     )
 
     enlace_url = models.URLField(
@@ -725,17 +725,17 @@ class NoticiasPopup(models.Model):
         max_length=100,
         blank=True,
         null=True,
-        help_text="Texto del botÃ³n del enlace (ej: 'Leer mÃ¡s', 'Inscribirte')",
+        help_text="Texto del botón del enlace (ej: 'Leer más', 'Inscribirte')",
     )
 
     creado_en = models.DateTimeField(
         auto_now_add=True,
-        help_text="Fecha de creaciÃ³n del registro",
+        help_text="Fecha de creación del registro",
     )
 
     actualizado_en = models.DateTimeField(
         auto_now=True,
-        help_text="Fecha de Ãºltima actualizaciÃ³n",
+        help_text="Fecha de última actualización",
     )
 
     class Meta:
@@ -754,7 +754,7 @@ class NoticiasPopup(models.Model):
         return f"[{estado}] {self.nombre}"
 
     def esta_vigente(self):
-        """Retorna True si la noticia estÃ¡ dentro del rango de fechas"""
+        """Retorna True si la noticia está dentro del rango de fechas"""
         from django.utils import timezone
 
         hoy = timezone.localdate()
@@ -771,10 +771,10 @@ class NoticiasPopup(models.Model):
         return None
 
     def get_info_completa(self):
-        """Retorna informaciÃ³n completa de la noticia"""
+        """Retorna información completa de la noticia"""
         return {
             "nombre": self.nombre,
-            "descripcion": self.descripcion or "Sin descripciÃ³n",
+            "descripcion": self.descripcion or "Sin descripción",
             "estado": "Activa" if self.estado else "Inactiva",
             "vigente": self.esta_vigente(),
             "debe_mostrarse": self.debe_mostrarse(),
@@ -786,14 +786,14 @@ class NoticiasPopup(models.Model):
 
 class Interesado(models.Model):
     """
-    Formularios de contacto de personas interesadas en programas acadÃ©micos
+    Formularios de contacto de personas interesadas en programas académicos
     """
 
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        help_text="Identificador Ãºnico del interesado",
+        help_text="Identificador único del interesado",
     )
 
     # Datos personales
@@ -808,20 +808,20 @@ class Interesado(models.Model):
     )
 
     email = models.EmailField(
-        help_text="Correo electrÃ³nico de contacto",
+        help_text="Correo electrónico de contacto",
     )
 
     telefono = models.CharField(
         max_length=15,
-        help_text="NÃºmero de telÃ©fono",
+        help_text="Número de teléfono",
     )
 
-    # RelaciÃ³n con el programa de interÃ©s
+    # Relación con el programa de interés
     curso_interes = models.ForeignKey(
         "Curso",
         on_delete=models.CASCADE,
         related_name="interesados",
-        help_text="Programa/Curso de interÃ©s",
+        help_text="Programa/Curso de interés",
     )
 
     mensaje = models.TextField(
@@ -831,13 +831,13 @@ class Interesado(models.Model):
     )
 
     acepta_terminos = models.BooleanField(
-        default=False, help_text="AceptaciÃ³n de tÃ©rminos y condiciones (requerido)"
+        default=False, help_text="Aceptación de términos y condiciones (requerido)"
     )
 
-    # AuditorÃ­a
+    # Auditoría
     fecha_registro = models.DateTimeField(
         auto_now_add=True,
-        help_text="Fecha y hora del registro de interÃ©s",
+        help_text="Fecha y hora del registro de interés",
     )
 
     atendido = models.BooleanField(
@@ -881,34 +881,34 @@ class Interesado(models.Model):
 class Etiqueta(models.Model):
     """
     Etiquetas/Tags para clasificar posts (noticias, blogs, publicaciones).
-    RelaciÃ³n N:M con Post.
+    Relación N:M con Post.
     """
 
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        help_text="Identificador Ãºnico de la etiqueta",
+        help_text="Identificador único de la etiqueta",
     )
 
     nombre = models.CharField(
         max_length=50,
         unique=True,
-        help_text="Nombre de la etiqueta (ej: TecnologÃ­a, EducaciÃ³n)",
+        help_text="Nombre de la etiqueta (ej: Tecnología, Educación)",
     )
 
     descripcion = models.TextField(
-        blank=True, null=True, help_text="DescripciÃ³n opcional de la etiqueta"
+        blank=True, null=True, help_text="Descripción opcional de la etiqueta"
     )
 
     activo = models.BooleanField(
-        default=True, help_text="Si la etiqueta estÃ¡ activa y disponible para usar"
+        default=True, help_text="Si la etiqueta está activa y disponible para usar"
     )
 
-    creado_en = models.DateTimeField(auto_now_add=True, help_text="Fecha de creaciÃ³n")
+    creado_en = models.DateTimeField(auto_now_add=True, help_text="Fecha de creación")
 
     actualizado_en = models.DateTimeField(
-        auto_now=True, help_text="Fecha de Ãºltima actualizaciÃ³n"
+        auto_now=True, help_text="Fecha de última actualización"
     )
 
     class Meta:
@@ -927,25 +927,25 @@ class Etiqueta(models.Model):
 
 class Post(models.Model):
     """
-    Sistema de gestiÃ³n de contenido: Noticias, Blogs y Publicaciones CientÃ­ficas
+    Sistema de gestión de contenido: Noticias, Blogs y Publicaciones Científicas
     """
 
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        help_text="Identificador Ãºnico del post",
+        help_text="Identificador único del post",
     )
 
     titulo = models.CharField(
         max_length=255,
-        help_text="TÃ­tulo del post",
+        help_text="Título del post",
     )
 
     slug = models.SlugField(
         max_length=255,
         unique=True,
-        help_text="URL amigable (se genera automÃ¡ticamente del tÃ­tulo)",
+        help_text="URL amigable (se genera automáticamente del título)",
     )
 
     resumen = models.TextField(
@@ -960,7 +960,7 @@ class Post(models.Model):
     TIPO_CHOICES = [
         ("noticia", "Noticia"),
         ("blog", "Blog"),
-        ("publicacion", "PublicaciÃ³n CientÃ­fica"),
+        ("publicacion", "Publicación Científica"),
         ("hitos_logros", "Hitos y Logros"),
     ]
 
@@ -976,12 +976,12 @@ class Post(models.Model):
         null=True,
         choices=[
             ("institucional", "Institucional"),
-            ("academico", "AcadÃ©mico"),
+            ("academico", "Académico"),
             ("eventos", "Eventos"),
             ("deportes", "Deportes"),
             ("comunicados", "Comunicados"),
         ],
-        help_text="ClasificaciÃ³n de la noticia",
+        help_text="Clasificación de la noticia",
     )
 
     autor_texto = models.CharField(
@@ -995,7 +995,7 @@ class Post(models.Model):
         upload_to="posts_pdfs/%Y/%m/",
         blank=True,
         null=True,
-        help_text="Archivo PDF asociado al post (opcional, Ãºtil para Revistas o Blogs)",
+        help_text="Archivo PDF asociado al post (opcional, útil para Revistas o Blogs)",
     )
 
     imagen_portada = models.ImageField(
@@ -1024,7 +1024,7 @@ class Post(models.Model):
         max_length=20,
         choices=ESTADO_CHOICES,
         default="borrador",
-        help_text="Estado de publicaciÃ³n",
+        help_text="Estado de publicación",
     )
 
     destacado = models.BooleanField(
@@ -1035,7 +1035,7 @@ class Post(models.Model):
     fecha_publicacion = models.DateTimeField(
         null=True,
         blank=True,
-        help_text="Fecha de publicaciÃ³n (visible para usuarios)",
+        help_text="Fecha de publicación (visible para usuarios)",
     )
 
     # SEO
@@ -1043,10 +1043,10 @@ class Post(models.Model):
         max_length=160,
         blank=True,
         null=True,
-        help_text="Meta descripciÃ³n para SEO",
+        help_text="Meta descripción para SEO",
     )
 
-    # ========== RELACIÃN N:M CON ETIQUETAS ==========
+    # ========== RELACIÓN N:M CON ETIQUETAS ==========
 
     etiquetas = models.ManyToManyField(
         "Etiqueta",
@@ -1055,15 +1055,15 @@ class Post(models.Model):
         help_text="Etiquetas asociadas al post",
     )
 
-    # AuditorÃ­a
+    # Auditoría
     creado_en = models.DateTimeField(
         auto_now_add=True,
-        help_text="Fecha de creaciÃ³n",
+        help_text="Fecha de creación",
     )
 
     actualizado_en = models.DateTimeField(
         auto_now=True,
-        help_text="Fecha de Ãºltima actualizaciÃ³n",
+        help_text="Fecha de última actualización",
     )
 
     class Meta:
@@ -1084,7 +1084,7 @@ class Post(models.Model):
         return f"[{self.get_tipo_display()}] {self.titulo}"
 
     def save(self, *args, **kwargs):
-        """Generar slug automÃ¡ticamente si no existe"""
+        """Generar slug automáticamente si no existe"""
         if not self.slug:
             from django.utils.text import slugify
 
@@ -1092,7 +1092,7 @@ class Post(models.Model):
         super().save(*args, **kwargs)
 
     def esta_publicado(self):
-        """Retorna True si el post estÃ¡ publicado"""
+        """Retorna True si el post está publicado"""
         return self.estado == "publicado"
 
     def get_url_imagen(self):
@@ -1102,7 +1102,7 @@ class Post(models.Model):
         return None
 
     def get_info_completa(self):
-        """Retorna informaciÃ³n completa del post"""
+        """Retorna información completa del post"""
         autor_nombre = self.autor.get_nombre_completo() if self.autor else "Sin autor"
         return {
             "titulo": self.titulo,
@@ -1128,7 +1128,7 @@ class Autoridad(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        help_text="Identificador Ãºnico de la autoridad",
+        help_text="Identificador único de la autoridad",
     )
 
     nombres = models.CharField(
@@ -1144,16 +1144,16 @@ class Autoridad(models.Model):
         max_length=100,
         blank=True,
         null=True,
-        help_text="TÃ­tulo acadÃ©mico o profesional (ej: PhD., Msc., Ing., Dr.)",
+        help_text="Título académico o profesional (ej: PhD., Msc., Ing., Dr.)",
     )
 
     CARGO_CHOICES = [
         ("rector", "Rector"),
         ("vicerrector", "Vicerrector"),
-        ("coordinador_academico", "Coordinador AcadÃ©mico"),
+        ("coordinador_academico", "Coordinador Académico"),
         ("secretario_general", "Secretario General"),
         ("director_carrera", "Director de Carrera"),
-        ("coordinador_investigacion", "Coordinador de InvestigaciÃ³n"),
+        ("coordinador_investigacion", "Coordinador de Investigación"),
         ("representante_docente", "Representante Docentes"),
         ("representante_estudiante", "Representante Estudiantes"),
         ("consejo_regentes", "Consejo de Regentes"),
@@ -1162,7 +1162,7 @@ class Autoridad(models.Model):
     cargo = models.CharField(
         max_length=100,
         choices=CARGO_CHOICES,
-        help_text="Cargo que desempeÃ±a",
+        help_text="Cargo que desempeña",
     )
 
     email = models.EmailField(blank=True, null=True)
@@ -1171,23 +1171,23 @@ class Autoridad(models.Model):
         upload_to="autoridades/",
         blank=True,
         null=True,
-        help_text="FotografÃ­a oficial de la autoridad",
+        help_text="Fotografía oficial de la autoridad",
     )
 
     biografia = models.TextField(
         blank=True,
         null=True,
-        help_text="BiografÃ­a profesional y trayectoria",
+        help_text="Biografía profesional y trayectoria",
     )
 
     orden = models.IntegerField(
         default=0,
-        help_text="Orden de visualizaciÃ³n en la web (menor = primero)",
+        help_text="Orden de visualización en la web (menor = primero)",
     )
 
     activo = models.BooleanField(
         default=True,
-        help_text="Si la autoridad estÃ¡ actualmente en el cargo",
+        help_text="Si la autoridad está actualmente en el cargo",
     )
 
     fecha_inicio = models.DateField(
@@ -1197,18 +1197,18 @@ class Autoridad(models.Model):
     fecha_fin = models.DateField(
         null=True,
         blank=True,
-        help_text="Fecha de fin del cargo (NULL si estÃ¡ activo)",
+        help_text="Fecha de fin del cargo (NULL si está activo)",
     )
 
-    # AuditorÃ­a
+    # Auditoría
     creado_en = models.DateTimeField(
         auto_now_add=True,
-        help_text="Fecha de creaciÃ³n del registro",
+        help_text="Fecha de creación del registro",
     )
 
     actualizado_en = models.DateTimeField(
         auto_now=True,
-        help_text="Fecha de Ãºltima actualizaciÃ³n",
+        help_text="Fecha de última actualización",
     )
 
     class Meta:
@@ -1227,7 +1227,7 @@ class Autoridad(models.Model):
 
     def clean(self):
         from django.core.exceptions import ValidationError
-        # Validar el email requerido segÃºn el cargo
+        # Validar el email requerido según el cargo
         if self.cargo != "consejo_regentes" and not self.email:
             raise ValidationError({
                 "email": "Este cargo requiere correo institucional."
@@ -1245,13 +1245,13 @@ class Autoridad(models.Model):
         return None
 
     def get_info_completa(self):
-        """Retorna informaciÃ³n completa de la autoridad"""
+        """Retorna información completa de la autoridad"""
         return {
             "nombre_completo": self.get_nombre_completo(),
             "cargo": self.get_cargo_display(),
             "email": self.email,
             "fotografia": self.get_url_foto(),
-            "biografia": self.biografia or "Sin biografÃ­a",
+            "biografia": self.biografia or "Sin biografía",
             "activo": self.activo,
             "periodo": f"Desde {self.fecha_inicio}"
             + (f" hasta {self.fecha_fin}" if self.fecha_fin else " (Actual)"),
@@ -1267,31 +1267,31 @@ class DocumentoTransparencia(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        help_text="Identificador Ãºnico del documento",
+        help_text="Identificador único del documento",
     )
 
     titulo = models.CharField(
         max_length=255,
-        help_text="TÃ­tulo del documento",
+        help_text="Título del documento",
     )
 
     descripcion = models.TextField(
         blank=True,
         null=True,
-        help_text="DescripciÃ³n del contenido del documento",
+        help_text="Descripción del contenido del documento",
     )
 
     CATEGORIA_CHOICES = [
         ("normativa institucional", "Normativa Institucional"),
-        ("informaciÃ³n econÃ³mica", "InfromaciÃ³n EconÃ³mica"),
-        ("rendiciÃ³n de cuentas", "RendiciÃ³n de Cuentas"),
-        ("planificaciÃ³n institucional", "PlanificaciÃ³n Institucional"),
+        ("información económica", "Infromación Económica"),
+        ("rendición de cuentas", "Rendición de Cuentas"),
+        ("planificación institucional", "Planificación Institucional"),
     ]
 
     categoria = models.CharField(
         max_length=100,
         choices=CATEGORIA_CHOICES,
-        help_text="CategorÃ­a principal del documento",
+        help_text="Categoría principal del documento",
     )
 
     SUBCATEGORIA_CHOICES = [
@@ -1304,20 +1304,20 @@ class DocumentoTransparencia(models.Model):
         ("normativa", "Normativa"),
         ("financiero", "Financiero"),
         ("estatutos", "Estatutos"),
-        ("politicas", "PolÃ­ticas"),
+        ("politicas", "Políticas"),
         ("protocolos", "Protocolos"),
         ("manuales", "Manuales"),
-        ("guias", "GuÃ­as"),
+        ("guias", "Guías"),
         ("remuneraciones", "Remuneraciones"),
         ("estados_financieros", "Estados Financieros"),
-        ("planificacion_operativa", "PlanificaciÃ³n Operativa"),
-        ("planificacion_estrategica", "PlanificaciÃ³n EstratÃ©gica"),
+        ("planificacion_operativa", "Planificación Operativa"),
+        ("planificacion_estrategica", "Planificación Estratégica"),
     ]
 
     subcategoria = models.CharField(
         max_length=100,
         choices=SUBCATEGORIA_CHOICES,
-        help_text="SubcategorÃ­a del documento",
+        help_text="Subcategoría del documento",
     )
 
     archivo = models.FileField(
@@ -1334,21 +1334,21 @@ class DocumentoTransparencia(models.Model):
     archivo_tamano_bytes = models.BigIntegerField(
         null=True,
         blank=True,
-        help_text="TamaÃ±o del archivo en bytes",
+        help_text="Tamaño del archivo en bytes",
     )
 
     fecha_documento = models.DateField(
-        help_text="Fecha del documento (fecha de emisiÃ³n)",
+        help_text="Fecha del documento (fecha de emisión)",
     )
 
-    # AuditorÃ­a
+    # Auditoría
     subido_por = models.ForeignKey(
         "auth_app.Usuario",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="documentos_subidos",
-        help_text="Usuario que subiÃ³ el documento",
+        help_text="Usuario que subió el documento",
     )
 
     subido_en = models.DateTimeField(
@@ -1358,7 +1358,7 @@ class DocumentoTransparencia(models.Model):
 
     actualizado_en = models.DateTimeField(
         auto_now=True,
-        help_text="Fecha de Ãºltima actualizaciÃ³n",
+        help_text="Fecha de última actualización",
     )
 
     class Meta:
@@ -1377,7 +1377,7 @@ class DocumentoTransparencia(models.Model):
         return f"[{self.get_categoria_display()}] {self.titulo}"
 
     def save(self, *args, **kwargs):
-        """Guardar nombre y tamaÃ±o del archivo automÃ¡ticamente"""
+        """Guardar nombre y tamaño del archivo automáticamente"""
         if self.archivo:
             self.archivo_nombre = self.archivo.name
             self.archivo_tamano_bytes = self.archivo.size
@@ -1390,7 +1390,7 @@ class DocumentoTransparencia(models.Model):
         return None
 
     def get_tamano_legible(self):
-        """Retorna el tamaÃ±o en formato legible"""
+        """Retorna el tamaño en formato legible"""
         if not self.archivo_tamano_bytes:
             return "N/A"
 
@@ -1404,7 +1404,7 @@ class DocumentoTransparencia(models.Model):
             return f"{mb:.2f} MB"
 
     def get_info_completa(self):
-        """Retorna informaciÃ³n completa del documento"""
+        """Retorna información completa del documento"""
         subidor = (
             self.subido_por.get_nombre_completo() if self.subido_por else "Sistema"
         )
@@ -1412,9 +1412,9 @@ class DocumentoTransparencia(models.Model):
             "titulo": self.titulo,
             "categoria": self.get_categoria_display(),
             "subcategoria": self.get_subcategoria_display(),
-            "descripcion": self.descripcion or "Sin descripciÃ³n",
+            "descripcion": self.descripcion or "Sin descripción",
             "archivo": self.get_url_archivo(),
-            "tamaÃ±o": self.get_tamano_legible(),
+            "tamaño": self.get_tamano_legible(),
             "fecha_documento": self.fecha_documento.strftime("%Y-%m-%d"),
             "subido_por": subidor,
             "subido_en": self.subido_en.strftime("%Y-%m-%d %H:%M:%S"),

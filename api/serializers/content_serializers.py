@@ -20,7 +20,7 @@ from content.models import (
 
 class NoticiasPopupSerializer(serializers.ModelSerializer):
     """
-    Serializer para vista pÃºblica de noticias popup
+    Serializer para vista pública de noticias popup
     """
 
     imagen_url = serializers.SerializerMethodField()
@@ -109,17 +109,17 @@ class NoticiasPopupCreateUpdateSerializer(serializers.ModelSerializer):
     def validate_nombre(self, value):
         if not value or not value.strip():
             raise serializers.ValidationError(
-                "El nombre de la noticia no puede estar vacÃ­o"
+                "El nombre de la noticia no puede estar vacío"
             )
         return value.strip()
 
 
-# SERIALIZERS PARA CATEGORÃA CURSO
+# SERIALIZERS PARA CATEGORÍA CURSO
 
 
 class CategoriaCursoSerializer(serializers.ModelSerializer):
     """
-    Serializer para categorÃ­as de cursos.
+    Serializer para categorías de cursos.
     """
 
     coordinacion_display = serializers.CharField(
@@ -160,7 +160,7 @@ class CursoListSerializer(serializers.ModelSerializer):
 class CursoDetailSerializer(serializers.ModelSerializer):
     """
     Serializer para detalle de un curso (GET por ID).
-    InformaciÃ³n completa incluyendo todos los campos y relaciones.
+    Información completa incluyendo todos los campos y relaciones.
     """
     imagen_url = serializers.SerializerMethodField()
 
@@ -309,17 +309,17 @@ class CursoCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_titulo(self, value):
         if not value or not value.strip():
-            raise serializers.ValidationError("El tÃ­tulo no puede estar vacÃ­o")
+            raise serializers.ValidationError("El título no puede estar vacío")
         return value.strip()
 
     def validate_duracion_valor(self, value):
         if value is not None and value < 0:
-            raise serializers.ValidationError("La duraciÃ³n debe ser un nÃºmero positivo")
+            raise serializers.ValidationError("La duración debe ser un número positivo")
         return value
 
     def validate_costo_matricula(self, value):
         if value is not None and value < 0:
-            raise serializers.ValidationError("El costo de matrÃ­cula debe ser positivo")
+            raise serializers.ValidationError("El costo de matrícula debe ser positivo")
         return value
 
     def validate_costo_total(self, value):
@@ -329,7 +329,7 @@ class CursoCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_cuotas(self, value):
         if value is not None and value < 1:
-            raise serializers.ValidationError("El nÃºmero de cuotas debe ser al menos 1")
+            raise serializers.ValidationError("El número de cuotas debe ser al menos 1")
         return value
 
     def validate(self, attrs):
@@ -365,7 +365,7 @@ class CursoCreateUpdateSerializer(serializers.ModelSerializer):
                     }
                 )
 
-        # Validar coordinaciÃ³n y categorÃ­a
+        # Validar coordinación y categoría
         coordinacion = attrs.get("coordinacion")
         categoria_curso = attrs.get("categoria_curso")
 
@@ -383,12 +383,12 @@ class CursoCreateUpdateSerializer(serializers.ModelSerializer):
             if categoria_curso.coordinacion != coordinacion:
                 raise serializers.ValidationError(
                     {
-                        "categoria_curso": f"Esta categorÃ­a pertenece a {categoria_curso.get_coordinacion_display()}, "
-                        f"no a la coordinaciÃ³n seleccionada."
+                        "categoria_curso": f"Esta categoría pertenece a {categoria_curso.get_coordinacion_display()}, "
+                        f"no a la coordinación seleccionada."
                     }
                 )
 
-        # Validar costos (matrÃ­cula no puede ser mayor que el total)
+        # Validar costos (matrícula no puede ser mayor que el total)
         costo_matricula = attrs.get("costo_matricula")
         costo_total = attrs.get("costo_total")
 
@@ -406,7 +406,7 @@ class CursoCreateUpdateSerializer(serializers.ModelSerializer):
             if costo_matricula > costo_total:
                 raise serializers.ValidationError(
                     {
-                        "costo_matricula": "El costo de matrÃ­cula no puede ser mayor al costo total"
+                        "costo_matricula": "El costo de matrícula no puede ser mayor al costo total"
                     }
                 )
 
@@ -449,7 +449,7 @@ class InteresadoSerializer(serializers.ModelSerializer):
 
 class InteresadoCreateSerializer(serializers.ModelSerializer):
     """
-    Serializer para crear un interesado (formulario pÃºblico de landing).
+    Serializer para crear un interesado (formulario público de landing).
     """
 
     class Meta:
@@ -483,28 +483,28 @@ class InteresadoCreateSerializer(serializers.ModelSerializer):
 
     def validate_telefono(self, value):
         if not value or not value.strip():
-            raise serializers.ValidationError("El telÃ©fono es requerido")
+            raise serializers.ValidationError("El teléfono es requerido")
         cleaned = "".join(c for c in value if c.isdigit() or c == "+")
         if len(cleaned) < 7:
             raise serializers.ValidationError(
-                "El telÃ©fono debe tener al menos 7 dÃ­gitos"
+                "El teléfono debe tener al menos 7 dígitos"
             )
         return cleaned
 
     def validate_curso_interes(self, value):
         if not value:
-            raise serializers.ValidationError("Debe seleccionar un programa de interÃ©s")
+            raise serializers.ValidationError("Debe seleccionar un programa de interés")
         if value.estado != "activo":
             raise serializers.ValidationError(
-                "El programa seleccionado no estÃ¡ disponible"
+                "El programa seleccionado no está disponible"
             )
         return value
 
     def validate_acepta_terminos(self, value):
-        """Valida que los tÃ©rminos y condiciones sean aceptados"""
+        """Valida que los términos y condiciones sean aceptados"""
         if not value:
             raise serializers.ValidationError(
-                "Debe aceptar los tÃ©rminos y condiciones para continuar"
+                "Debe aceptar los términos y condiciones para continuar"
             )
         return value
 
@@ -560,13 +560,13 @@ class EtiquetaCreateUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def validate_nombre(self, value):
-        """Validar que el nombre no estÃ© vacÃ­o y sea Ãºnico"""
+        """Validar que el nombre no esté vacío y sea único"""
         if not value or not value.strip():
             raise serializers.ValidationError("El nombre de la etiqueta es requerido")
 
         value = value.strip()
 
-        # Verificar unicidad (excepto si es actualizaciÃ³n del mismo registro)
+        # Verificar unicidad (excepto si es actualización del mismo registro)
         etiqueta_existente = Etiqueta.objects.filter(nombre__iexact=value)
         if self.instance:
             etiqueta_existente = etiqueta_existente.exclude(id=self.instance.id)
@@ -583,7 +583,7 @@ class EtiquetaCreateUpdateSerializer(serializers.ModelSerializer):
 class PostListSerializer(serializers.ModelSerializer):
     """
     Serializer para listado de posts (GET lista).
-    InformaciÃ³n resumida para tarjetas/cards.
+    Información resumida para tarjetas/cards.
     """
 
     tipo_display = serializers.CharField(source="get_tipo_display", read_only=True)
@@ -640,7 +640,7 @@ class PostListSerializer(serializers.ModelSerializer):
 class PostDetailSerializer(serializers.ModelSerializer):
     """
     Serializer para detalle de un post (GET por ID o slug).
-    InformaciÃ³n completa.
+    Información completa.
     """
 
     tipo_display = serializers.CharField(source="get_tipo_display", read_only=True)
@@ -704,7 +704,7 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
         queryset=Etiqueta.objects.filter(activo=True),
         many=True,
         required=False,
-        help_text="Nombres de las etiquetas (ej: ['TecnologÃ­a', 'EducaciÃ³n'])",
+        help_text="Nombres de las etiquetas (ej: ['Tecnología', 'Educación'])",
     )
 
     class Meta:
@@ -731,12 +731,12 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_titulo(self, value):
         if not value or not value.strip():
-            raise serializers.ValidationError("El tÃ­tulo no puede estar vacÃ­o")
+            raise serializers.ValidationError("El título no puede estar vacío")
         return value.strip()
 
     def validate_resumen(self, value):
         if not value or not value.strip():
-            raise serializers.ValidationError("El resumen no puede estar vacÃ­o")
+            raise serializers.ValidationError("El resumen no puede estar vacío")
         if len(value) > 500:
             raise serializers.ValidationError(
                 "El resumen no puede exceder 500 caracteres"
@@ -745,12 +745,12 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_contenido(self, value):
         if not value or not value.strip():
-            raise serializers.ValidationError("El contenido no puede estar vacÃ­o")
+            raise serializers.ValidationError("El contenido no puede estar vacío")
         return value.strip()
 
     def validate_slug(self, value):
         """
-        Validar que el slug sea Ãºnico (excepto para el mismo objeto en actualizaciÃ³n)
+        Validar que el slug sea único (excepto para el mismo objeto en actualización)
         """
         if value:
             queryset = Post.objects.filter(slug=value)
@@ -792,7 +792,7 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
 class AutoridadListSerializer(serializers.ModelSerializer):
     """
     Serializer para listado de autoridades.
-    InformaciÃ³n resumida para la secciÃ³n "Somos ISTEPS".
+    Información resumida para la sección "Somos ISTEPS".
     """
 
     cargo_display = serializers.CharField(source="get_cargo_display", read_only=True)
@@ -895,12 +895,12 @@ class AutoridadCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_nombres(self, value):
         if not value or not value.strip():
-            raise serializers.ValidationError("Los nombres no pueden estar vacÃ­os")
+            raise serializers.ValidationError("Los nombres no pueden estar vacíos")
         return value.strip()
 
     def validate_apellidos(self, value):
         if not value or not value.strip():
-            raise serializers.ValidationError("Los apellidos no pueden estar vacÃ­os")
+            raise serializers.ValidationError("Los apellidos no pueden estar vacíos")
         return value.strip()
 
     def validate_email(self, value):
@@ -924,13 +924,13 @@ class AutoridadCreateUpdateSerializer(serializers.ModelSerializer):
             cargo = cargo or self.instance.cargo
             email = email if "email" in attrs else self.instance.email
 
-        # ð¥ VALIDACIÃN EMAIL
+        # ð¥ VALIDACIÓN EMAIL
         if cargo != "consejo_regentes" and not email:
             raise serializers.ValidationError({
                 "email": "Este cargo requiere correo institucional"
             })
 
-        # ð¹ VALIDACIÃN FECHAS
+        # ð¹ VALIDACIÓN FECHAS
         fecha_inicio = attrs.get("fecha_inicio")
         fecha_fin = attrs.get("fecha_fin")
 
@@ -1086,7 +1086,7 @@ class DocumentoTransparenciaCreateSerializer(serializers.ModelSerializer):
 
     def validate_titulo(self, value):
         if not value or not value.strip():
-            raise serializers.ValidationError("El tÃ­tulo no puede estar vacÃ­o")
+            raise serializers.ValidationError("El título no puede estar vacío")
         return value.strip()
 
     def validate_archivo(self, value):
@@ -1094,7 +1094,7 @@ class DocumentoTransparenciaCreateSerializer(serializers.ModelSerializer):
             # Validar que sea PDF
             if not value.name.lower().endswith(".pdf"):
                 raise serializers.ValidationError("Solo se permiten archivos PDF")
-            # Validar tamaÃ±o mÃ¡ximo (10 MB)
+            # Validar tamaño máximo (10 MB)
             max_size = 10 * 1024 * 1024
             if value.size > max_size:
                 raise serializers.ValidationError("El archivo no puede superar 10 MB")
