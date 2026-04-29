@@ -2959,70 +2959,72 @@ class ImagenCarruselViewSet(viewsets.ModelViewSet):
 
 
 class BotonSoporteViewSet(viewsets.ModelViewSet):
-
     """
-
     ViewSet para gestionar Botones de Soporte.
 
-
-
     Endpoints:
-
     - GET    /api/cms/botones-soporte/              ? Lista botones activos
-
     - GET    /api/cms/botones-soporte/admin/        ? Lista todos los botones (Admin)
-
     - GET    /api/cms/botones-soporte/{id}/         ? Detalle de un botón
-
     - POST   /api/cms/botones-soporte/              ? Crear botón (Admin)
-
     - PUT    /api/cms/botones-soporte/{id}/         ? Actualizar botón (Admin)
-
     - DELETE /api/cms/botones-soporte/{id}/         ? Eliminar botón (Admin)
-
     """
 
-
-
     queryset = BotonSoporte.objects.all().order_by("orden", "nombre")
-
     serializer_class = BotonSoporteSerializer
 
-
-
     def get_permissions(self):
-
         if self.action in ["list", "retrieve"]:
-
             return [AllowAny()]
-
         return [IsAdminUser()]
 
-
-
     def get_queryset(self):
-
         queryset = super().get_queryset()
-
         # Si no es admin y es la acción list, filtrar solo activos
-
         if self.action == "list" and not (self.request.user and self.request.user.is_staff):
-
             queryset = queryset.filter(activo=True)
-
         return queryset
 
+    def list(self, request, *args, **kwargs):
+        """
+        Garantiza que los dos botones base (Soporte Técnico y WhatsApp)
+        siempre existan en la base de datos usando get_or_create.
+        Solo se puede cambiar su estado activo, nunca eliminarlos.
+        """
+        # Asegurar que los dos botones base siempre existan en BD
+        BotonSoporte.objects.get_or_create(
+            nombre="Soporte Técnico",
+            defaults={
+                "enlace_url": "https://isteps.edu.ec/soporte",
+                "activo": True,
+                "orden": 1,
+            },
+        )
+        BotonSoporte.objects.get_or_create(
+            nombre="WhatsApp",
+            defaults={
+                "enlace_url": "https://wa.me/593999999999",
+                "activo": True,
+                "orden": 2,
+            },
+        )
 
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        """Eliminar botones de soporte no está permitido. Solo se puede cambiar el estado activo."""
+        return Response(
+            {"detail": "Los botones de soporte no pueden eliminarse. Solo puede cambiar su estado activo."},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
 
     @action(detail=False, methods=["get"], permission_classes=[IsAdminUser])
-
     def admin(self, request):
-
         """Lista todos los botones sin filtrar (solo para admin)"""
-
         queryset = BotonSoporte.objects.all().order_by("orden", "nombre")
-
         serializer = self.get_serializer(queryset, many=True)
-
         return Response(serializer.data)
 
