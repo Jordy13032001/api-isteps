@@ -1425,7 +1425,7 @@ class ImagenCarrusel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     SECCION_CHOICES = [
-        ('mesa_tecnica', 'Mesa TÃ©cnica'),
+        ('mesa_tecnica', 'Mesa Técnica'),
         ('ruta_aprendizaje', 'Ruta de Aprendizaje'),
         ('historia', 'Nuestra Historia'),
         ('inicio', 'Inicio Principal'),
@@ -1434,25 +1434,25 @@ class ImagenCarrusel(models.Model):
     seccion = models.CharField(
         max_length=50, 
         choices=SECCION_CHOICES,
-        help_text="SecciÃ³n donde aparecerÃ¡ esta imagen en el frontend"
+        help_text="Sección donde aparecerá esta imagen en el frontend"
     )
     
-    titulo = models.CharField(max_length=150, blank=True, null=True, help_text="TÃ­tulo o nombre descriptivo de la imagen (Opcional)")
+    titulo = models.CharField(max_length=150, blank=True, null=True, help_text="Título o nombre descriptivo de la imagen (Opcional)")
     
     imagen_url = models.URLField(max_length=500, blank=True, null=True, help_text="URL de la imagen (Ej. Imgur, Cloudinary)")
     imagen_archivo = models.ImageField(upload_to="carruseles/", blank=True, null=True, help_text="O sube el archivo directamente")
     
-    url_destino = models.URLField(max_length=500, blank=True, null=True, help_text="URL a la que redirigirÃ¡ al hacer clic (Especial para Mesa TÃ©cnica)")
+    url_destino = models.URLField(max_length=500, blank=True, null=True, help_text="URL a la que redirigirá al hacer clic (Especial para Mesa Técnica)")
     
-    orden = models.IntegerField(default=0, help_text="Orden en el que aparecerÃ¡ en el carrusel (0 es el primero)")
-    activo = models.BooleanField(default=True, help_text="Indica si la imagen estÃ¡ visible")
+    orden = models.IntegerField(default=0, help_text="Orden en el que aparecerá en el carrusel (0 es el primero)")
+    activo = models.BooleanField(default=True, help_text="Indica si la imagen está visible")
     
     creado_en = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         db_table = "imagenes_carrusel"
         verbose_name = "Imagen de Carrusel"
-        verbose_name_plural = "ImÃ¡genes de Carrusel"
+        verbose_name_plural = "Imágenes de Carrusel"
         ordering = ["seccion", "orden", "-creado_en"]
         indexes = [
             models.Index(fields=["seccion", "activo"]),
