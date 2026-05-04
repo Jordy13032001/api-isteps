@@ -2997,6 +2997,7 @@ class BotonSoporteViewSet(viewsets.ModelViewSet):
             nombre="Soporte Técnico",
             defaults={
                 "enlace_url": "https://isteps.edu.ec/soporte",
+                "icono": "Headset",
                 "activo": True,
                 "orden": 1,
             },
@@ -3005,6 +3006,7 @@ class BotonSoporteViewSet(viewsets.ModelViewSet):
             nombre="WhatsApp",
             defaults={
                 "enlace_url": "https://wa.me/593999999999",
+                "icono": "MessageCircle",
                 "activo": True,
                 "orden": 2,
             },

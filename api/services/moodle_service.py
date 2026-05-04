@@ -47,6 +47,12 @@ def obtener_cursos_publicos():
         from content.models import Curso
         destacados_ids = set(Curso.objects.filter(destacado=True, tipo='moodle').values_list('codigo_externo', flat=True))
 
+        # Obtener todos los cursos tipo 'moodle' de Django para mapear inscritos_count
+        moodle_django_data = {
+            str(c.codigo_externo): c.inscritos_count 
+            for c in Curso.objects.filter(tipo='moodle')
+        }
+
         cursos = []
 
         for curso in data:
@@ -62,7 +68,8 @@ def obtener_cursos_publicos():
                 "titulo": curso.get("fullname"),
                 "descripcion": curso.get("summary"),
                 "fecha": curso.get("startdate"),
-                "destacado": moodle_id in destacados_ids
+                "destacado": moodle_id in destacados_ids,
+                "inscritos_count": moodle_django_data.get(moodle_id, 0)
             })
 
         return cursos

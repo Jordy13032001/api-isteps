@@ -58,7 +58,7 @@ class CarreraForm(forms.ModelForm):
 @admin.register(Carrera)
 class CarreraAdmin(admin.ModelAdmin):
     form = CarreraForm
-    list_display = ["titulo", "coordinacion", "categoria_curso", "costo_total", "cuotas", "destacado", "estado"]
+    list_display = ["titulo", "coordinacion", "categoria_curso", "inscritos_count", "destacado", "estado"]
     list_filter = ["destacado", "coordinacion", "categoria_curso", "estado", "nivel", "modalidad"]
     search_fields = ["titulo"]
     ordering = ["-creado_en"]
@@ -108,6 +108,7 @@ class CarreraAdmin(admin.ModelAdmin):
                     "fecha_inicio_publicidad",
                     "fecha_fin_publicidad",
                     "destacado",
+                    "inscritos_count",
                     "estado",
                 )
             },
@@ -181,7 +182,7 @@ class CursoMoodleForm(forms.ModelForm):
 @admin.register(CursoMoodle)
 class CursoMoodleAdmin(admin.ModelAdmin):
     form = CursoMoodleForm
-    list_display = ["titulo", "codigo_externo", "plataforma", "destacado", "estado"]
+    list_display = ["titulo", "codigo_externo", "inscritos_count", "destacado", "estado"]
     list_filter = ["destacado", "estado"]
     search_fields = ["codigo_externo", "titulo"]
     ordering = ["-creado_en"]
@@ -200,6 +201,7 @@ class CursoMoodleAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "destacado",
+                    "inscritos_count",
                     "estado",
                 )
             },
