@@ -493,7 +493,7 @@ class InteresadoCreateSerializer(serializers.ModelSerializer):
 
     def validate_curso_interes(self, value):
         if not value:
-            raise serializers.ValidationError("Debe seleccionar un programa de interés")
+            return None
         if value.estado != "activo":
             raise serializers.ValidationError(
                 "El programa seleccionado no está disponible"

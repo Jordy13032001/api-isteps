@@ -821,6 +821,8 @@ class Interesado(models.Model):
         "Curso",
         on_delete=models.CASCADE,
         related_name="interesados",
+        null=True,
+        blank=True,
         help_text="Programa/Curso de interés",
     )
 
