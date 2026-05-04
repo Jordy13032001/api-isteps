@@ -147,7 +147,7 @@ class CursoListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Curso
-        fields = ["id", "titulo", "descripcion", "imagen_url", "tipo", "codigo_externo", "destacado", "inscritos_count"]
+        fields = ["id", "titulo", "descripcion", "imagen_url", "tipo", "codigo_externo", "destacado"]
     
     def get_imagen_url(self, obj):
         if hasattr(obj, "imagen") and obj.imagen:
@@ -230,7 +230,6 @@ class CursoDetailSerializer(serializers.ModelSerializer):
             "estado",
             "estado_display",
             "destacado",
-            "inscritos_count",
             "creado_en",
             "actualizado_en",
         ]
@@ -314,7 +313,6 @@ class CursoCreateUpdateSerializer(serializers.ModelSerializer):
             "coordinador",
             "estado",
             "destacado",
-            "inscritos_count",
         ]
         read_only_fields = ["id"]
 

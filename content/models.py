@@ -247,11 +247,6 @@ class Curso(models.Model):
         help_text="Indica si el curso debe aparecer en la sección de destacados",
     )
 
-    inscritos_count = models.IntegerField(
-        default=0,
-        help_text="Número de estudiantes inscritos (se muestra en la web)",
-    )
-
     creado_en = models.DateTimeField(
         auto_now_add=True,
         help_text="Fecha de creación del registro",
