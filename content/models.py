@@ -320,7 +320,7 @@ class CursoMoodle(Curso):
     def get_info_completa(self):
         """Retorna información completa del curso"""
         coordinador = (
-            f"{self.coordinador.nombre} {self.coordinador.apellido}"
+            f"{self.coordinador.nombres} {self.coordinador.apellidos}"
             if self.coordinador
             else "Sin asignar"
         )

@@ -238,8 +238,8 @@ class CursoDetailSerializer(serializers.ModelSerializer):
         if obj.coordinador:
             return {
                 "id": str(obj.coordinador.id),
-                "nombre": obj.coordinador.nombre,
-                "apellido": obj.coordinador.apellido,
+                "nombre": obj.coordinador.nombres,
+                "apellido": obj.coordinador.apellidos,
                 "cargo": obj.coordinador.cargo,
                 "email": obj.coordinador.email,
             }
