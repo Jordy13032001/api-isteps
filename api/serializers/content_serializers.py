@@ -236,12 +236,21 @@ class CursoDetailSerializer(serializers.ModelSerializer):
 
     def get_coordinador_info(self, obj):
         if obj.coordinador:
+            foto_url = None
+            if obj.coordinador.fotografia:
+                request = self.context.get("request")
+                if request:
+                    foto_url = request.build_absolute_uri(obj.coordinador.fotografia.url)
+                else:
+                    foto_url = obj.coordinador.fotografia.url
+            
             return {
                 "id": str(obj.coordinador.id),
                 "nombre": obj.coordinador.nombres,
                 "apellido": obj.coordinador.apellidos,
                 "cargo": obj.coordinador.cargo,
                 "email": obj.coordinador.email,
+                "foto_url": foto_url,
             }
         return None
 
